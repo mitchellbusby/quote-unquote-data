@@ -1,4 +1,4 @@
-# client side for "data"
+# client/serverside for "data"
 
 ```
 yarn install && yarn dev
