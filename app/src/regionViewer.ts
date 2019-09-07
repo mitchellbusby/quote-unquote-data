@@ -8,6 +8,8 @@ import { RegionModel } from "./fetchTile";
 const canvas = document.getElementById(
   "c-isometric-canvas"
 ) as HTMLCanvasElement;
+// let parentBounds = canvas.parentElement.getBoundingClientRect();
+// canvas.width = parentBounds.width;
 const title = document.getElementById('title');
 
 const context = canvas.getContext("webgl2");
@@ -33,10 +35,10 @@ const ZoneColors = {
 
 const TileHeight = 1;
 const TileDiameter = 3;
-const TileGap = 0.1;
+const TileGap = 1;
 
 const mapDistanceToInternal = (distance: number) => {
-  return TileDiameter * (distance - TileGap);
+  return (TileDiameter + TileGap) * distance;
 };
 
 const mapPopulationToDensity = (population: number) => population / 10;
