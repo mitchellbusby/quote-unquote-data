@@ -91,7 +91,7 @@ export function initialise() {
                 (longitude[1] - longitude[0])
             )
             .style("fill", point => "blue")
-            .style("opacity", point => Math.max(1 - point.score * 100000, 0.01))
+            .style("opacity", point => Math.max(1 - point.score, 0.01))
             .on("mouseover", function(d) {
               tooltip
                 .transition()

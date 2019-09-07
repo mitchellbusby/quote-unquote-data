@@ -52,23 +52,43 @@ def similarities_get():
     return jsonify(similar)
 
 def distance(a, b):
-    x1, y1 = a
-    x2, y2 = b
-    return math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
+    return math.sqrt(sum((x1 - x2)**2 for x1, x2 in zip(b, a)))
 
 def get_similar_regions(model):
     regions = get_regions()
+    ## Sum (get the sums of the different metrics)
+    ## TODO: religious, rental_rate, unemployment, median rent
+    metrics = [
+        'population',
+        'income',
+        # We commented out unemployment because it doesn't normalise well yet...oops
+        # 'unemployment',
+        'median_rent'
+    ]
+    # k: metric name, v: sum
 
-    pop_sum = sum(region['population'] for region in regions)
-    income_sum = sum(region['income'] for region in regions)
+    sums = {metric: sum(region[metric] for region in regions) for metric in metrics}
+
+
+    ## Weight the things + create vectors (region.metric / sum)
     normalised = [dict(
         region=region,
-        pop=region['population'] / pop_sum,
-        income=region['income'] / income_sum)
+        vector=[
+            region[metric] / sums[metric] for metric in metrics
+        ])
         for region in regions
     ]
-    vec = model['population'] / pop_sum, model['income'] / income_sum
-    normalised = [{'region': x['region']['id'], 'score': distance(vec, (x['pop'], x['income']))} for x in normalised]
+
+    ## Create a vector for the current region (model/sum)
+    base_vector = [model[metric] / sums[metric] for metric in metrics]
+    # vec = model['population'] / sums['population'], model['income'] / sums['income']
+
+    ## Then add then to a list and pairwise (with the model) apply the distance fn
+    normalised = [{'region': x['region']['id'], 'score': distance(base_vector, x['vector'])} for x in normalised]
+    score_max = max(x['score'] for x in normalised)
+    normalised = [{**x, 'score': x['score']/score_max} for x in normalised]
+
+    ## Then sort the list by them
     return sorted(normalised, key=lambda x: x['score'])
 
 
