@@ -62,8 +62,4 @@ def get_similar_regions(model):
 
 
 if __name__ == "__main__":
-<<<<<<< HEAD
-    app.run()
-=======
     app.run(debug=True)
->>>>>>> d013f0abd5365b6b6bf4101438d28b18f7d7a7a5
