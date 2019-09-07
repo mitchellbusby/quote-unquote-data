@@ -3,8 +3,10 @@ import math
 import json
 import random
 import numpy
+import os
 
 from flask import Flask, render_template, jsonify, request
+import sklearn.preprocessing
 
 app = Flask(
     __name__,
@@ -17,7 +19,7 @@ app.config['TEMPLATES_AUTO_RELOAD'] = True
 
 @lru_cache()
 def get_regions():
-    with open('data/sa2_regions.json') as regions_file:
+    with open(os.path.dirname(os.path.realpath(__file__)) + '/data/sa2_regions.json') as regions_file:
         return json.load(regions_file)
 
 @app.route('/')
@@ -27,14 +29,21 @@ def index():
 
 @app.route('/api/region')
 def region_get():
-    with open('data/sa2_regions.json') as regions_file:
-        regions = json.load(regions_file)
+    regions = get_regions()
     region = random.choice(regions)
     tiles = tiles_from_region(region)
     return jsonify({
         'tiles': tiles,
         'model': region,
     })
+
+@app.route('/api/regions')
+def regions_get():
+    return jsonify({region['sa2']: region for region in get_regions()})
+
+@app.route('/api/tiles', methods=["POST"])
+def tiles_get():
+    return jsonify(tiles_from_region(request.json))
 
 @app.route('/api/similar', methods=["POST"])
 def similarities_get():
@@ -49,18 +58,18 @@ def distance(a, b):
 
 def get_similar_regions(model):
     regions = get_regions()
-    pop_min = min(region['population'] for region in regions)
-    pop_max = max(region['population'] for region in regions)
-    income_min = min(region['income'] for region in regions)
-    income_max = max(region['income'] for region in regions)
+
+    pop_sum = sum(region['population'] for region in regions)
+    income_sum = sum(region['income'] for region in regions)
     normalised = [dict(
         region=region,
-        pop=(region['population'] - pop_min) / (pop_max - pop_min),
-        income=(region['income'] - income_min) / (income_max - income_min))
+        pop=region['population'] / pop_sum,
+        income=region['income'] / income_sum)
         for region in regions
     ]
-    vec = (model['population'] - pop_min) / (pop_max - pop_min), (model['income'] - income_min) / (income_max - income_min)
-    return sorted(normalised, key=lambda x: distance(vec, (x['pop'], x['income'])))
+    vec = model['population'] / pop_sum, model['income'] / income_sum
+    normalised = [{'region': x['region']['sa2'], 'score': distance(vec, (x['pop'], x['income']))} for x in normalised]
+    return sorted(normalised, key=lambda x: x['score'])
 
 
 def tiles_from_region(region):
@@ -102,4 +111,8 @@ def tiles_from_region(region):
     return tiles
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(
+        '0.0.0.0',
+        debug=True,
+        port=int(os.environ.get('PORT', 5000))
+    )

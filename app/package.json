@@ -5,15 +5,18 @@
   "author": "Mitchell Busby <mitchbusby@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "@types/d3": "^5.7.2",
     "@types/node": "^12.7.4",
     "@types/webpack-env": "^1.14.0",
+    "d3": "^5.12.0",
     "parcel-bundler": "1.11.0",
+    "rxjs": "^6.5.3",
     "sass": "^1.23.0-module.beta.1",
     "tachyons": "4.10.0",
     "three": "^0.108.0"
   },
   "scripts": {
-    "start": "yarn run build",
+    "start": "yarn install && yarn run build",
     "build": "parcel build src/index.ts -d static/dist",
     "watch": "parcel watch src/index.ts -d static/dist"
   },

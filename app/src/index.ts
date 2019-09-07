@@ -1,9 +1,12 @@
-import { fetchRegion } from "./fetchTile";
+import { fetchNewRegion } from "./fetchTile";
 import "./main.scss";
-import { regionViewerInitialise } from "./regionViewer";
-import { initialise as similarityMapInititalise } from "./similarityMap";
+import { initialise as initRegionViewer } from "./regionViewer";
+import { initialise as initSimilarityMap } from "./similarityMap";
 
-fetchRegion().then(region => {
-  similarityMapInititalise(region);
-  regionViewerInitialise(region);
+document.querySelector("#randomise-btn").addEventListener("click", () => {
+  fetchNewRegion();
 });
+fetchNewRegion();
+
+initRegionViewer();
+initSimilarityMap();
