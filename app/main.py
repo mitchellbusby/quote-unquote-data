@@ -49,6 +49,7 @@ def distance(a, b):
 
 def get_similar_regions(model):
     regions = get_regions()
+
     pop_min = min(region['population'] for region in regions)
     pop_max = max(region['population'] for region in regions)
     income_min = min(region['income'] for region in regions)
@@ -60,7 +61,8 @@ def get_similar_regions(model):
         for region in regions
     ]
     vec = (model['population'] - pop_min) / (pop_max - pop_min), (model['income'] - income_min) / (income_max - income_min)
-    return sorted(normalised, key=lambda x: distance(vec, (x['pop'], x['income'])))
+    normalised = [{**x, 'score': distance(vec, (x['pop'], x['income']))} for x in normalised]
+    return sorted(normalised, key=lambda x: x['score'])
 
 
 def tiles_from_region(region):

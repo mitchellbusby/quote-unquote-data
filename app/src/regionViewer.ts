@@ -8,6 +8,7 @@ import { RegionModel } from "./fetchTile";
 const canvas = document.getElementById(
   "c-isometric-canvas"
 ) as HTMLCanvasElement;
+const title = document.getElementById('title');
 
 const context = canvas.getContext("webgl2");
 
@@ -26,7 +27,7 @@ const ZoneColors = {
   [Zone.Residential]: "#007f00",
   [Zone.Commercial]: "#6666e6",
   [Zone.Industrial]: "#ff0000",
-  [Zone.Unknown]: "periwinkle"
+  [Zone.Unknown]: "#ffffff",
 };
 // todo: density
 
@@ -41,6 +42,7 @@ const mapDistanceToInternal = (distance: number) => {
 const mapPopulationToDensity = (population: number) => population / 10;
 
 function setRegion(region: RegionModel) {
+  title.innerText = region.model.name;
   region.tiles.forEach((tile, idx) => {
     const material = new MeshStandardMaterial({
       color: ZoneColors[tile.zone] || ZoneColors[Zone.Unknown]
