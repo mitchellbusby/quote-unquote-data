@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { region$ } from "./fetchTile";
+import { region$, RegionModelModel, TileModel } from "./fetchTile";
 
 const margin = { top: 20, right: 20, bottom: 30, left: 40 },
   width = 400 - margin.left - margin.right,
@@ -32,7 +32,7 @@ const fetchSimilar = async region => {
   });
 
   const json = (await result.json()) as Array<{
-    region: { lat: number; lon: number; name: string };
+    region: RegionModelModel;
     score: number;
   }>;
 
@@ -48,34 +48,9 @@ export function initialise() {
     ).textContent = `Similar to ${region["model"]["name"]}`;
 
     fetchSimilar(region).then(similar => {
-      const vis = svg
-        .selectAll(".dot")
-        .data(similar.map(point => ({ ...point.region, score: point.score })))
-        .style("opacity", point => Math.max(1 - point.score * 100000, 0.01))
-        .attr(
-          "cy",
-          point =>
-            (height * (point.lat - latitude[0])) / (latitude[1] - latitude[0])
-        )
-        .attr(
-          "cx",
-          point =>
-            (width * (point.lon - longitude[0])) / (longitude[1] - longitude[0])
-        )
-        .on("mouseover", function(d) {
-          tooltip
-            .transition()
-            .duration(200)
-            .style("opacity", 0.9);
-          tooltip
-            .text(d.name)
-            .style("left", d3.event.pageX + 5 + "px")
-            .style("top", d3.event.pageY - 28 + "px");
-        });
-      console.log("updating");
+      const vis = svg.selectAll(".dot").data(similar);
       if (!initialised) {
         initialised = true;
-        console.log("init");
         vis
           .enter()
           .append("circle")
@@ -84,12 +59,13 @@ export function initialise() {
           .attr(
             "cy",
             point =>
-              (height * (point.lat - latitude[0])) / (latitude[1] - latitude[0])
+              (height * (point.region.lat - latitude[0])) /
+              (latitude[1] - latitude[0])
           )
           .attr(
             "cx",
             point =>
-              (width * (point.lon - longitude[0])) /
+              (width * (point.region.lon - longitude[0])) /
               (longitude[1] - longitude[0])
           )
           .style("fill", point => "blue")
@@ -100,7 +76,7 @@ export function initialise() {
               .duration(200)
               .style("opacity", 0.9);
             tooltip
-              .text(d.name)
+              .text(d.region.name)
               .style("left", d3.event.pageX + 5 + "px")
               .style("top", d3.event.pageY - 28 + "px");
           })
@@ -109,6 +85,43 @@ export function initialise() {
               .transition()
               .duration(500)
               .style("opacity", 0);
+          })
+          .on("click", async d => {
+            const result = await fetch("/api/tiles", {
+              method: "POST",
+              body: JSON.stringify(d.region),
+              headers: {
+                "Content-Type": "application/json"
+              }
+            });
+
+            const json = (await result.json()) as TileModel[];
+            region$.next({ model: d.region, tiles: json });
+          });
+      } else {
+        vis
+          .style("opacity", point => Math.max(1 - point.score * 100000, 0.01))
+          .attr(
+            "cy",
+            point =>
+              (height * (point.region.lat - latitude[0])) /
+              (latitude[1] - latitude[0])
+          )
+          .attr(
+            "cx",
+            point =>
+              (width * (point.region.lon - longitude[0])) /
+              (longitude[1] - longitude[0])
+          )
+          .on("mouseover", function(d) {
+            tooltip
+              .transition()
+              .duration(200)
+              .style("opacity", 0.9);
+            tooltip
+              .text(d.region.name)
+              .style("left", d3.event.pageX + 5 + "px")
+              .style("top", d3.event.pageY - 28 + "px");
           });
       }
     });

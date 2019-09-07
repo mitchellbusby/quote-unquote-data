@@ -24,12 +24,15 @@ interface TileModel {
   };
 }
 
+interface RegionModelModel {
+  name: string;
+  lat: number;
+  lon: number;
+}
+
 interface RegionModel {
-  model: {
-    name: string;
-    // todo: this
-  };
+  model: RegionModelModel;
   tiles: TileModel[];
 }
 
-export { region$, fetchNewRegion, RegionModel, TileModel };
+export { region$, fetchNewRegion, RegionModel, TileModel, RegionModelModel };
