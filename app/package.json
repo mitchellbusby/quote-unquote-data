@@ -1,0 +1,17 @@
+{
+  "name": "quote-unquote-data",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Mitchell Busby <mitchbusby@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "parcel-bundler": "^1.12.3"
+  },
+  "scripts": {
+    "dev": "parcel index.html",
+    "build": "parcel index.html"
+  },
+  "devDependencies": {
+    "typescript": "^3.6.2"
+  }
+}
