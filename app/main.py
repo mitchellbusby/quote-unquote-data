@@ -37,6 +37,10 @@ def region_get():
         'model': region,
     })
 
+@app.route('/api/tiles', methods=["POST"])
+def tiles_get():
+    return jsonify(tiles_from_region(request.json))
+
 @app.route('/api/similar', methods=["POST"])
 def similarities_get():
     model = request.json
