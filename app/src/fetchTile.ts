@@ -23,6 +23,7 @@ interface TileModel {
 
 interface RegionModel {
   model: {
+    name: string;
     // todo: this
   };
   tiles: TileModel[];
