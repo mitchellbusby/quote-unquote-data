@@ -25,27 +25,29 @@ const {camera} = setupCamera(aspect, d, scene);
 const {renderer} = setUpRenderer(canvas, context, canvasBoundingRect);
 setLighting(scene);
 
-const cubeRadius = 3;
+enum Zones {
+  Residential = "residential",
+  Commercial = "commercial",
+  Industrial = "industrial",
+}
 
-const colors = [
-  0x2e7d32,
-  0x2e7d38,
-  0x2e7d40
-]
+// todo: get sc4 color codes
+const ZoneColors = {
+  [Zones.Residential]: "#1ddb00",
+  [Zones.Commercial]: "#fcba03",
+  [Zones.Industrial]: "#1ddb00",
+}
 
-const colorsToIncomeLevels = [
-  "#db1200",
-  "#fcba03",
-  "#1ddb00"
-]
+const TileHeight = 1;
+const TileDiameter = 3;
 
 fetchRegion()
   .then((region) => {
     region.tiles.forEach((tile, idx) => {
       const material = new MeshStandardMaterial({
-        color: colorsToIncomeLevels[tile.income_level - 1]
+        color: ZoneColors[Zones.Residential],
       });
-      const geometry = new BoxGeometry(cubeRadius, cubeRadius, cubeRadius);
+      const geometry = new BoxGeometry(TileDiameter, TileHeight, TileDiameter);
       const cube = new Mesh(geometry, material);
       scene.add(cube);
 
