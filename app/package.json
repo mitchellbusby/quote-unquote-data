@@ -9,8 +9,8 @@
   },
   "scripts": {
     "start": "yarn run build",
-    "build": "parcel build static/src/index.ts -d static/dist",
-    "watch": "parcel watch static/src/index.ts -d static/dist"
+    "build": "parcel build src/index.ts -d static/dist",
+    "watch": "parcel watch src/index.ts -d static/dist"
   },
   "devDependencies": {
     "typescript": "^3.6.2"
