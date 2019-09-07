@@ -32,14 +32,14 @@ const ZoneColors = {
   [Zone.Industrial]: "#ff0000",
   [Zone.Water]: "#ddddff",
   [Zone.Park]: "#66ee66",
-  [Zone.Unknown]: "#ffffff",
+  [Zone.Unknown]: "#ffffff"
 };
 
 const BUILDING_COLOR = "#eeeeee";
 // todo: density
 
 const TileDiameter = 3;
-const TileGap = 0.1;
+const TileGap = 0;
 const TilePadding = 0.4;
 const BuildingHeight = 1 / 30;
 
@@ -47,7 +47,8 @@ const mapDistanceToInternal = (distance: number) => {
   return (TileDiameter + TileGap) * distance;
 };
 
-const mapPopulationToDensity = (population: number) => population * BuildingHeight;
+const mapPopulationToDensity = (population: number) =>
+  population * BuildingHeight;
 
 function setRegion(region: RegionModel) {
   title.innerText = region.model.name;
@@ -56,19 +57,20 @@ function setRegion(region: RegionModel) {
       color: BUILDING_COLOR //ZoneColors[tile.zone] || ZoneColors[Zone.Unknown]
     });
 
-    const height = mapPopulationToDensity(tile.population);
-    const geometry = new BoxGeometry(
-      TileDiameter - TilePadding * 2,
-      height + 0.1,
-      TileDiameter - TilePadding * 2
-    );
-    const cube = new Mesh(geometry, material);
-    scene.add(cube);
-    active.push(cube);
-    cube.translateX(mapDistanceToInternal(tile.coordinates.x));
-    cube.translateZ(mapDistanceToInternal(tile.coordinates.y));
-    cube.translateY(height / 2);
-
+    if (tile.population) {
+      const height = mapPopulationToDensity(tile.population);
+      const geometry = new BoxGeometry(
+        TileDiameter - TilePadding * 2,
+        height + 0.1,
+        TileDiameter - TilePadding * 2
+      );
+      const cube = new Mesh(geometry, material);
+      scene.add(cube);
+      active.push(cube);
+      cube.translateX(mapDistanceToInternal(tile.coordinates.x));
+      cube.translateZ(mapDistanceToInternal(tile.coordinates.y));
+      cube.translateY(height / 2);
+    }
     const base = new Mesh(
       new BoxGeometry(TileDiameter, 0.1, TileDiameter),
       new MeshStandardMaterial({
