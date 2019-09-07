@@ -33,6 +33,7 @@ interface RegionModelModel {
   rental_rate: number;
   unemployment: number;
   median_rent: number;
+  geometry: number[][];
 }
 
 interface RegionModel {
