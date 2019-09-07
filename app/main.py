@@ -2,6 +2,7 @@ from functools import lru_cache
 import math
 import json
 import random
+import numpy
 
 from flask import Flask, render_template, jsonify, request
 
@@ -29,10 +30,7 @@ def region_get():
     with open('data/sa2_regions.json') as regions_file:
         regions = json.load(regions_file)
     region = random.choice(regions)
-    # add tiles
-    tile = {**region}
-    tile['zone'] = 'residential'
-    tiles = [tile, tile, tile, tile]
+    tiles = tiles_from_region(region)
     return jsonify({
         'tiles': tiles,
         'model': region,
@@ -64,6 +62,27 @@ def get_similar_regions(model):
     vec = (model['population'] - pop_min) / (pop_max - pop_min), (model['income'] - income_min) / (income_max - income_min)
     return sorted(normalised, key=lambda x: distance(vec, (x['pop'], x['income'])))
 
+
+def tiles_from_region(region):
+    pop_grid = numpy.random.uniform(size=(4, 4))
+
+    pop_grid /= pop_grid.sum()
+
+    pop_grid *= region['population']
+
+    tiles = []
+
+    for y in range(4):
+        for x in range(4):
+            tile = {**region}
+            tile['coordinates'] = {
+                "x": x,
+                "y": y,
+            }
+
+            tile['population'] = pop_grid[y, x]
+            tiles.append(tile)
+    return tiles
 
 if __name__ == "__main__":
     app.run(debug=True)

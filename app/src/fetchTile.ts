@@ -14,7 +14,11 @@ interface TileModel {
   name: string;
   population: number;
   sa2: string;
-  zone: Zone
+  zone: Zone;
+  coordinates: {
+    x: number;
+    y: number;
+  };
 }
 
 interface RegionModel {
@@ -24,4 +28,4 @@ interface RegionModel {
   tiles: TileModel[];
 }
 
-export { fetchRegion };
+export { fetchRegion, RegionModel, TileModel };

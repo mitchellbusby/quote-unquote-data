@@ -3,6 +3,7 @@ import "./main.scss";
 import { Scene, BoxGeometry, MeshStandardMaterial, Mesh } from "three";
 import { setLighting, setupCamera, setUpRenderer } from "./sceneSetup";
 import { Zone } from "./ZoneTypes";
+import { RegionModel } from "./fetchTile";
 
 const canvas = document.getElementById(
   "c-isometric-canvas"
@@ -30,17 +31,28 @@ const ZoneColors = {
 
 const TileHeight = 1;
 const TileDiameter = 3;
+const TileGap = 0.1;
 
-function setRegion(region) {
+const mapDistanceToInternal = (distance: number) => {
+  return TileDiameter * (distance - TileGap);
+};
+
+const mapPopulationToDensity = (population: number) => population / 10;
+
+function setRegion(region: RegionModel) {
   region.tiles.forEach((tile, idx) => {
     const material = new MeshStandardMaterial({
       color: ZoneColors[Zone.Residential]
     });
-    const geometry = new BoxGeometry(TileDiameter, TileHeight, TileDiameter);
+
+    const height = mapPopulationToDensity(tile.population);
+    const geometry = new BoxGeometry(TileDiameter, height, TileDiameter);
     const cube = new Mesh(geometry, material);
     scene.add(cube);
 
-    cube.translateX(idx * 3);
+    cube.translateX(mapDistanceToInternal(tile.coordinates.x));
+    cube.translateZ(mapDistanceToInternal(tile.coordinates.y));
+    cube.translateY(height / 2);
   });
 }
 
