@@ -19,7 +19,7 @@ app.config['TEMPLATES_AUTO_RELOAD'] = True
 
 @lru_cache()
 def get_regions():
-    with open(os.path.dirname(os.path.realpath(__file__)) + '/data/sa2_regions.json') as regions_file:
+    with open(os.path.dirname(os.path.realpath(__file__)) + '/data/suburb_regions.json') as regions_file:
         return json.load(regions_file)
 
 @app.route('/')
@@ -39,7 +39,7 @@ def region_get():
 
 @app.route('/api/regions')
 def regions_get():
-    return jsonify({region['sa2']: region for region in get_regions()})
+    return jsonify({region['id']: region for region in get_regions()})
 
 @app.route('/api/tiles', methods=["POST"])
 def tiles_get():
@@ -68,41 +68,49 @@ def get_similar_regions(model):
         for region in regions
     ]
     vec = model['population'] / pop_sum, model['income'] / income_sum
-    normalised = [{'region': x['region']['sa2'], 'score': distance(vec, (x['pop'], x['income']))} for x in normalised]
+    normalised = [{'region': x['region']['id'], 'score': distance(vec, (x['pop'], x['income']))} for x in normalised]
     return sorted(normalised, key=lambda x: x['score'])
 
 
 def tiles_from_region(region):
-    pop_grid = numpy.random.uniform(size=(4, 4))
+    grid_size = 10
 
-    pop_grid /= pop_grid.sum()
-
-    pop_grid *= region['population']
+    # Allocate zones
 
     zones = []
     region_zoning = {k:v for k, v in region['zoning'].items() if k != 'U'}
     normalisation = sum(region_zoning.values())
     for zone, proportion in region_zoning.items():
         # r, c, u, i, p, w
-        cell_value = round((proportion / normalisation) * 16)
+        cell_value = round((proportion / normalisation) * grid_size ** 2)
         zones.extend([zone] * cell_value)
 
-    while len(zones) < 16:
+    while len(zones) < grid_size ** 2:
         zones.append('U')
     print('Generated zones:', zones)
 
-    assert len(zones) == 16, str((len(zones), region['zoning'], sum(region['zoning'].values())))
+    zones = zones[:grid_size ** 2]  # hax
+    numpy.random.shuffle(zones)
 
-    zones = numpy.reshape(zones, (4, 4))
+    assert len(zones) == grid_size ** 2
+
+    zones = numpy.reshape(zones, (grid_size, grid_size))
+
+    # Allocate population to residential areas
+
+    pop_grid = numpy.random.uniform(size=(grid_size, grid_size))
+    pop_grid[zones != 'R'] = 0
+    pop_grid /= pop_grid.sum()
+    pop_grid *= region['population']
 
     tiles = []
 
-    for y in range(4):
-        for x in range(4):
+    for y in range(grid_size):
+        for x in range(grid_size):
             tile = {**region}
             tile['coordinates'] = {
-                "x": x,
-                "y": y,
+                "x": x - grid_size / 2,
+                "y": y - grid_size / 2,
             }
 
             tile['population'] = pop_grid[y, x]

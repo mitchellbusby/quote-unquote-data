@@ -41,12 +41,13 @@ const BUILDING_COLOR = "#eeeeee";
 const TileDiameter = 3;
 const TileGap = 0.1;
 const TilePadding = 0.4;
+const BuildingHeight = 1 / 30;
 
 const mapDistanceToInternal = (distance: number) => {
-  return TileDiameter * (distance - TileGap - 1.5);
+  return (TileDiameter + TileGap) * distance;
 };
 
-const mapPopulationToDensity = (population: number) => population / 10;
+const mapPopulationToDensity = (population: number) => population * BuildingHeight;
 
 function setRegion(region: RegionModel) {
   title.innerText = region.model.name;

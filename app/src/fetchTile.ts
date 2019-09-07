@@ -16,7 +16,7 @@ interface TileModel {
   income_level: number;
   name: string;
   population: number;
-  sa2: string;
+  id: string;
   zone: Zone;
   coordinates: {
     x: number;
