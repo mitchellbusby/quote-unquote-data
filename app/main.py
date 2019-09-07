@@ -21,6 +21,12 @@ app.config['TEMPLATES_AUTO_RELOAD'] = True
 def get_regions():
     with open(os.path.dirname(os.path.realpath(__file__)) + '/data/suburb_regions.json') as regions_file:
         return json.load(regions_file)
+app.config['TEMPLATES_AUTO_RELOAD'] = True
+
+@lru_cache()
+def get_sa2_regions():
+    with open(os.path.dirname(os.path.realpath(__file__)) + '/data/sa2_regions.json') as regions_file:
+        return {v['sa2']: v for v in json.load(regions_file)}
 
 @app.route('/')
 def index():
@@ -67,7 +73,7 @@ def get_similar_regions(model):
     ]
     # k: metric name, v: sum
 
-    sums = {metric: sum(region[metric] for region in regions) for metric in metrics}
+    sums = {metric: sum(region[metric] for region in regions) or 1 for metric in metrics}
 
 
     ## Weight the things + create vectors (region.metric / sum)
@@ -92,47 +98,85 @@ def get_similar_regions(model):
     return sorted(normalised, key=lambda x: x['score'])
 
 
+def shift_tile(tile, dx, dy):
+    tile['coordinates']['x'] += dx
+    tile['coordinates']['y'] += dy
+    return tile
+
+def shift_tiles(tiles, dx, dy):
+    return [shift_tile(t, dx, dy) for t in tiles]
+
 def tiles_from_region(region):
-    grid_size = 10
+    random_state = numpy.random.RandomState(seed=int(region['id']))
+    sa1_regions = get_sa2_regions()
+    sa1s = [sa1_regions[sa1] for sa1 in region['sa1']]
+    sa1_tiles = [tiles_from_sa1_region(sa1, random_state=random_state) for sa1 in sa1s]
+    # Put a SA1 in the middle of the map.
+    the_map = sa1_tiles.pop()
+    # Repeatedly add SA1 regions.
+    full_offsets = {}
+    occupied_offsets = {(0, 0)}
+    occupied_offset_list = list(occupied_offsets)
+    while sa1_tiles:
+        tiles = sa1_tiles.pop()
+        # Add this grid of 5 x 5 tiles to a neighbour of an occupied offset.
+        # Choose an occupied offset...
+        while True:
+            offset = occupied_offset_list[random_state.randint(len(occupied_offset_list))]
+            # Then find a neighbour that isn't occupied.
+            neighbours = [(0, 1), (1, 0), (-1, 0), (0, -1)]
+            random_state.shuffle(neighbours)
+            for dx, dy in neighbours:
+                test_offset = (offset[0] + dx, offset[1] + dy)
+                if test_offset not in occupied_offsets:
+                    # All good!
+                    the_map.extend(shift_tiles(tiles, test_offset[0] * 5, test_offset[1] * 5))
+                    occupied_offset_list.append(test_offset)
+                    occupied_offsets.add(test_offset)
+                    break
+            else:
+                # This offset didn't work!
+                occupied_offset_list.remove(offset)
+                continue
+            # This offset worked!
+            break
+
+    return the_map
+
+
+def tiles_from_sa1_region(region, random_state=numpy.random):
+    grid_size = 5
 
     # Allocate zones
-
     zones = []
-    region_zoning = {k:v for k, v in region['zoning'].items() if k != 'U'}
+    region_zoning = {k: v for k, v in region['zoning'].items() if k != 'U'}
     normalisation = sum(region_zoning.values())
     for zone, proportion in region_zoning.items():
         # r, c, u, i, p, w
         cell_value = round((proportion / normalisation) * grid_size ** 2)
         zones.extend([zone] * cell_value)
-
     while len(zones) < grid_size ** 2:
         zones.append('U')
-    print('Generated zones:', zones)
-
     zones = zones[:grid_size ** 2]  # hax
-    numpy.random.shuffle(zones)
-
+    random_state.shuffle(zones)
     assert len(zones) == grid_size ** 2
-
     zones = numpy.reshape(zones, (grid_size, grid_size))
 
     # Allocate population to residential areas
-
-    pop_grid = numpy.random.uniform(size=(grid_size, grid_size))
+    pop_grid = random_state.uniform(size=(grid_size, grid_size))
     pop_grid[zones != 'R'] = 0
-    pop_grid /= pop_grid.sum()
+    pop_grid /= pop_grid.sum() or 1
     pop_grid *= region['population']
 
+    # Generate tiles in [0, 5] x [0, 5].
     tiles = []
-
     for y in range(grid_size):
         for x in range(grid_size):
             tile = {**region}
             tile['coordinates'] = {
-                "x": x - grid_size / 2,
-                "y": y - grid_size / 2,
+                "x": x - grid_size,
+                "y": y - grid_size,
             }
-
             tile['population'] = pop_grid[y, x]
             tile['zone'] = zones[y, x]
             tiles.append(tile)
