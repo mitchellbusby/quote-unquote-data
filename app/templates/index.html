@@ -1,11 +1,22 @@
 <html>
     <body>
-        <div>
-            Hello world
+        <div class="c-main-canvas mw9 center ph3-ns mv3">
+            <div class="c-suburb-isometric fl w-100 w-50-ns pa2">
+                <!-- The isometric map for the suburb -->
+                <div>Isometric map</div>
+            </div>
+            <div class="fl w-100 w-50-ns pa2">
+                <div class="c-suburb-controls">
+                    <!-- Various toggles for the suburbs -->
+                    <div>Controls</div>
+                </div>
+                <div class="c-suburb-som">
+                    <!-- The SOM for the suburbs -->
+                    <div>SOM</div>
+                </div>
+            </div>
         </div>
-        <canvas id="isometric" height="600" width="800">
-
-        </canvas>
     </body>
     <script src="{{ url_for('static', filename='index.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
 </html>
