@@ -7,6 +7,7 @@ import {
   Mesh,
 } from "three";
 import { setLighting, setUpRenderer, setupCamera } from "./sceneSetup";
+import { fetchRegion } from "./fetchTile";
 
 const canvas = document.getElementById(
   "c-isometric-canvas"
@@ -32,9 +33,25 @@ const material = new MeshStandardMaterial({
 const cube = new Mesh(geometry, material);
 scene.add(cube);
 
+fetchRegion()
+  .then((region) => {
+    region.tiles.forEach((tile, idx) => {
+      const cube = new Mesh(geometry, material);
+      scene.add(cube);
+
+      cube.translateX(idx * 3);
+    });
+  });
+
 function animate() {
   renderer.render(scene, camera);
-  requestAnimationFrame(animate);
+  let token = requestAnimationFrame(animate);
+
+  if (module.hot) {
+    module.hot.dispose(() => {
+      cancelAnimationFrame(token);
+    });
+  }
 }
 
 animate();
