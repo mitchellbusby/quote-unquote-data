@@ -8,6 +8,7 @@ import {
 } from "three";
 import { setLighting, setUpRenderer, setupCamera } from "./sceneSetup";
 import { fetchRegion } from "./fetchTile";
+import {Zones} from "./ZoneTypes";
 
 const canvas = document.getElementById(
   "c-isometric-canvas"
@@ -25,18 +26,13 @@ const {camera} = setupCamera(aspect, d, scene);
 const {renderer} = setUpRenderer(canvas, context, canvasBoundingRect);
 setLighting(scene);
 
-enum Zones {
-  Residential = "residential",
-  Commercial = "commercial",
-  Industrial = "industrial",
-}
-
 // todo: get sc4 color codes
 const ZoneColors = {
   [Zones.Residential]: "#1ddb00",
   [Zones.Commercial]: "#fcba03",
   [Zones.Industrial]: "#1ddb00",
 }
+// todo: density
 
 const TileHeight = 1;
 const TileDiameter = 3;
