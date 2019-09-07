@@ -32,6 +32,11 @@ def get_sa2_regions():
     with open(os.path.dirname(os.path.realpath(__file__)) + '/data/sa2_regions.json') as regions_file:
         return {v['sa2']: v for v in json.load(regions_file)}
 
+@lru_cache()
+def get_som_winners():
+    with open(os.path.dirname(os.path.realpath(__file__)) + '/data/id_to_winner_som.json') as similarities_file:
+        return json.load(similarities_file)
+
 @app.route('/')
 def index():
     # Hosts the main part of the application
@@ -66,7 +71,8 @@ def distance(a, b):
 
 def get_similar_regions(model):
     regions = get_regions()
-    ## Sum (get the sums of the different metrics)
+    """
+     ## Sum (get the sums of the different metrics)
     ## TODO: religious, rental_rate, unemployment, median rent
     metrics = [
         'population',
@@ -96,7 +102,14 @@ def get_similar_regions(model):
     ## Then add then to a list and pairwise (with the model) apply the distance fn
     normalised = [{'region': x['region']['id'], 'score': distance(base_vector, x['vector'])} for x in normalised]
     score_max = max(x['score'] for x in normalised)
-    normalised = [{**x, 'score': x['score']/score_max} for x in normalised]
+    normalised = [{**x, 'score': x['score']/score_max} for x in normalised] """
+    similarities = get_som_winners()
+
+    this_region_location = similarities[model['id']]
+
+    normalised = [{'region': r['id'], 'score': distance(similarities[r['id']], this_region_location) /
+        numpy.sqrt(25 ** 2 * 2)} for r in regions]
+    print(normalised)
 
     ## Then sort the list by them
     return sorted(normalised, key=lambda x: x['score'])
