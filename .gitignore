@@ -6,3 +6,9 @@ env
 .DS_Store
 itsajpg
 shapesnsw
+.ipynb_checkpoints
+# A bunch of random files for I/O when data hacking
+processing/sa2_regions.json
+sa1_seven_to_six.json
+zone-info-sydney.json
+2016 Census GCP Statistical Area 1 for NSW
