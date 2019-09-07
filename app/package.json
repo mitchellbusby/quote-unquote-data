@@ -5,7 +5,9 @@
   "author": "Mitchell Busby <mitchbusby@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "parcel-bundler": "^1.12.3"
+    "parcel-bundler": "^1.12.3",
+    "sass": "^1.23.0-module.beta.1",
+    "tachyons": "4.10.0"
   },
   "scripts": {
     "start": "yarn run build",
