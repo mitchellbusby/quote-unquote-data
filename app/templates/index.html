@@ -1,7 +1,7 @@
 <html>
     <body>
-        <div class="c-main-canvas mw9 center ph3-ns mv3">
-            <div class="c-suburb-isometric fl w-100 w-50-ns pa2">
+        <div class="c-main-canvas mw9 center flex ph3-ns mv3">
+            <div class="c-suburb-isometric w-100 w-50-ns pa2">
                 <!-- The isometric map for the suburb -->
                 <div><span id="title"></span></div>
                 <!-- todo: make responsive :S -->
@@ -9,7 +9,7 @@
 
                 </canvas>
             </div>
-            <div class="fl w-100 w-50-ns pa2">
+            <div class="w-100 w-50-ns pa2">
                 <div class="c-suburb-controls">
                     <!-- Various toggles for the suburbs -->
                     <div>Controls</div>
@@ -19,10 +19,19 @@
                     <!-- The SOM for the suburbs -->
                     <div id="similar-label"></div>
                     <div id="similar-map"></div>
-                  </div>
+                </div>
             </div>
         </div>
-
+        <div class="mw9 center ph3-ns mv3 flex">
+          <div class="w-100 c-suburb-geography pa3">
+            <div class="f3 lh-copy">Geography for <span class="c-suburb-geography__name"></span></div>
+            <div>Population: <span class="c-suburb-geography__population"></span></div>
+            <div>Religious: <span class="c-suburb-geography__religious"></span></div>
+            <div>Median rent: <span class="c-suburb-geography__rent"></span></div>
+            <div>Rental rate: <span class="c-suburb-geography__rent-rate"></span></div>
+            <div>Unemployment: <span class="c-suburb-geography__unemployment"></span></div>
+          </div>
+        </div>
       </div>
     </div>
   </body>

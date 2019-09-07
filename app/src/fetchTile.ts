@@ -28,6 +28,11 @@ interface RegionModelModel {
   name: string;
   lat: number;
   lon: number;
+  population: number;
+  religious: number;
+  rental_rate: number;
+  unemployment: number;
+  median_rent: number;
 }
 
 interface RegionModel {
