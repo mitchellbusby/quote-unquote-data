@@ -3,6 +3,7 @@ import math
 import json
 import random
 import numpy
+import os
 
 from flask import Flask, render_template, jsonify, request
 import sklearn.preprocessing
@@ -18,7 +19,7 @@ app.config['TEMPLATES_AUTO_RELOAD'] = True
 
 @lru_cache()
 def get_regions():
-    with open('data/sa2_regions.json') as regions_file:
+    with open(os.path.dirname(os.path.realpath(__file__)) + '/data/sa2_regions.json') as regions_file:
         return json.load(regions_file)
 
 @app.route('/')
@@ -28,8 +29,7 @@ def index():
 
 @app.route('/api/region')
 def region_get():
-    with open('data/sa2_regions.json') as regions_file:
-        regions = json.load(regions_file)
+    regions = get_regions()
     region = random.choice(regions)
     tiles = tiles_from_region(region)
     return jsonify({
@@ -102,4 +102,8 @@ def tiles_from_region(region):
     return tiles
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(
+        '0.0.0.0',
+        debug=True,
+        port=int(os.environ.get('PORT', 5000))
+    )

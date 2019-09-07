@@ -16,7 +16,7 @@
     "three": "^0.108.0"
   },
   "scripts": {
-    "start": "yarn run build",
+    "start": "yarn install && yarn run build",
     "build": "parcel build src/index.ts -d static/dist",
     "watch": "parcel watch src/index.ts -d static/dist"
   },
