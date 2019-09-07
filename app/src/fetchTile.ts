@@ -1,3 +1,5 @@
+import { Zone } from "./ZoneTypes";
+
 const fetchRegion = async () => {
   const result = await fetch("/api/region");
 
@@ -12,13 +14,19 @@ interface TileModel {
   name: string;
   population: number;
   sa2: string;
+  zone: Zone;
+  coordinates: {
+    x: number;
+    y: number;
+  };
 }
 
 interface RegionModel {
   model: {
+    name: string;
     // todo: this
   };
   tiles: TileModel[];
 }
 
-export { fetchRegion };
+export { fetchRegion, RegionModel, TileModel };

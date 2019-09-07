@@ -1,10 +1,14 @@
-import { BoxGeometry, Mesh, MeshStandardMaterial, Scene } from "three";
 import "./main.scss";
+
+import { Scene, BoxGeometry, MeshStandardMaterial, Mesh } from "three";
 import { setLighting, setupCamera, setUpRenderer } from "./sceneSetup";
+import { Zone } from "./ZoneTypes";
+import { RegionModel } from "./fetchTile";
 
 const canvas = document.getElementById(
   "c-isometric-canvas"
 ) as HTMLCanvasElement;
+const title = document.getElementById('title');
 
 const context = canvas.getContext("webgl2");
 
@@ -18,32 +22,40 @@ const { camera } = setupCamera(aspect, d, scene);
 const { renderer } = setUpRenderer(canvas, context, canvasBoundingRect);
 setLighting(scene);
 
-enum Zones {
-  Residential = "residential",
-  Commercial = "commercial",
-  Industrial = "industrial"
-}
-
 // todo: get sc4 color codes
 const ZoneColors = {
-  [Zones.Residential]: "#1ddb00",
-  [Zones.Commercial]: "#fcba03",
-  [Zones.Industrial]: "#1ddb00"
+  [Zone.Residential]: "#007f00",
+  [Zone.Commercial]: "#6666e6",
+  [Zone.Industrial]: "#ff0000",
+  [Zone.Unknown]: "#ffffff",
 };
+// todo: density
 
 const TileHeight = 1;
 const TileDiameter = 3;
+const TileGap = 0.1;
 
-function setRegion(region) {
+const mapDistanceToInternal = (distance: number) => {
+  return TileDiameter * (distance - TileGap);
+};
+
+const mapPopulationToDensity = (population: number) => population / 10;
+
+function setRegion(region: RegionModel) {
+  title.innerText = region.model.name;
   region.tiles.forEach((tile, idx) => {
     const material = new MeshStandardMaterial({
-      color: ZoneColors[Zones.Residential]
+      color: ZoneColors[tile.zone] || ZoneColors[Zone.Unknown]
     });
-    const geometry = new BoxGeometry(TileDiameter, TileHeight, TileDiameter);
+
+    const height = mapPopulationToDensity(tile.population);
+    const geometry = new BoxGeometry(TileDiameter, height, TileDiameter);
     const cube = new Mesh(geometry, material);
     scene.add(cube);
 
-    cube.translateX(idx * 3);
+    cube.translateX(mapDistanceToInternal(tile.coordinates.x));
+    cube.translateZ(mapDistanceToInternal(tile.coordinates.y));
+    cube.translateY(height / 2);
   });
 }
 

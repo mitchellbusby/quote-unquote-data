@@ -3,3 +3,6 @@ dist
 .cache
 yarn-error.log
 env
+.DS_Store
+itsajpg
+shapesnsw
