@@ -1,19 +1,8 @@
-import { BoxGeometry, Mesh, MeshStandardMaterial, Scene } from "three";
 import "./main.scss";
-<<<<<<< HEAD
 
-import {
-  Scene,
-  BoxGeometry,
-  MeshStandardMaterial,
-  Mesh,
-} from "three";
-import { setLighting, setUpRenderer, setupCamera } from "./sceneSetup";
-import { fetchRegion } from "./fetchTile";
-import {Zone} from "./ZoneTypes";
-=======
+import { Scene, BoxGeometry, MeshStandardMaterial, Mesh } from "three";
 import { setLighting, setupCamera, setUpRenderer } from "./sceneSetup";
->>>>>>> 9f1b7e156feb96cd8ce585ee309c60df98c9ddec
+import { Zone } from "./ZoneTypes";
 
 const canvas = document.getElementById(
   "c-isometric-canvas"
@@ -35,8 +24,8 @@ setLighting(scene);
 const ZoneColors = {
   [Zone.Residential]: "#007f00",
   [Zone.Commercial]: "#6666e6",
-  [Zone.Industrial]: "#ff0000",
-}
+  [Zone.Industrial]: "#ff0000"
+};
 // todo: density
 
 const TileHeight = 1;
