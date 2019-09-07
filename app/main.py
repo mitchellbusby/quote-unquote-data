@@ -37,6 +37,10 @@ def region_get():
         'model': region,
     })
 
+@app.route('/api/regions')
+def regions_get():
+    return jsonify({region['sa2']: region for region in get_regions()})
+
 @app.route('/api/tiles', methods=["POST"])
 def tiles_get():
     return jsonify(tiles_from_region(request.json))
@@ -64,7 +68,7 @@ def get_similar_regions(model):
         for region in regions
     ]
     vec = model['population'] / pop_sum, model['income'] / income_sum
-    normalised = [{**x, 'score': distance(vec, (x['pop'], x['income']))} for x in normalised]
+    normalised = [{'region': x['region']['sa2'], 'score': distance(vec, (x['pop'], x['income']))} for x in normalised]
     return sorted(normalised, key=lambda x: x['score'])
 
 

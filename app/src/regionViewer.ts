@@ -5,6 +5,7 @@ import { setLighting, setupCamera, setUpRenderer } from "./sceneSetup";
 import { Zone } from "./ZoneTypes";
 
 let active = [];
+let subscriptions = [];
 
 const canvas = document.getElementById(
   "c-isometric-canvas"
@@ -31,11 +32,13 @@ const ZoneColors = {
   [Zone.Industrial]: "#ff0000",
   [Zone.Unknown]: "#ffffff"
 };
+
+const BUILDING_COLOR = "#eeeeee";
 // todo: density
 
 const TileDiameter = 3;
 const TileGap = 0.1;
-const TilePadding = 0.2;
+const TilePadding = 0.4;
 
 const mapDistanceToInternal = (distance: number) => {
   return TileDiameter * (distance - TileGap - 1.5);
@@ -47,22 +50,32 @@ function setRegion(region: RegionModel) {
   title.innerText = region.model.name;
   region.tiles.forEach((tile, idx) => {
     const material = new MeshStandardMaterial({
-      color: ZoneColors[tile.zone] || ZoneColors[Zone.Unknown]
+      color: BUILDING_COLOR //ZoneColors[tile.zone] || ZoneColors[Zone.Unknown]
     });
 
     const height = mapPopulationToDensity(tile.population);
     const geometry = new BoxGeometry(
       TileDiameter - TilePadding * 2,
-      height,
+      height + 0.1,
       TileDiameter - TilePadding * 2
     );
     const cube = new Mesh(geometry, material);
     scene.add(cube);
     active.push(cube);
-
     cube.translateX(mapDistanceToInternal(tile.coordinates.x));
     cube.translateZ(mapDistanceToInternal(tile.coordinates.y));
     cube.translateY(height / 2);
+
+    const base = new Mesh(
+      new BoxGeometry(TileDiameter, 0.1, TileDiameter),
+      new MeshStandardMaterial({
+        color: ZoneColors[tile.zone] || ZoneColors[Zone.Unknown]
+      })
+    );
+    scene.add(base);
+    active.push(base);
+    base.translateX(mapDistanceToInternal(tile.coordinates.x));
+    base.translateZ(mapDistanceToInternal(tile.coordinates.y));
   });
 }
 
@@ -81,6 +94,7 @@ const destroy = () => {
   active.forEach(obj => {
     scene.remove(obj);
   });
+  active = [];
 };
 
 const initialise = () => {

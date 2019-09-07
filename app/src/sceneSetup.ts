@@ -28,7 +28,7 @@ const setUpRenderer = (
 };
 
 const setLighting = (scene: Scene) => {
-  const sunlight = 0xfdfbd3;
+  const sunlight = 0xffffff;
   var light = new HemisphereLight(sunlight, sunlight, 1);
   scene.add(light);
 
@@ -54,6 +54,8 @@ const setupCamera = (aspect: number, d: number, scene: any, renderer: any) => {
   controls.minDistance = 100;
   controls.maxDistance = 500;
   controls.maxPolarAngle = Math.PI / 2;
+  controls.autoRotate = true;
+  controls.autoRotateSpeed = 0.5;
 
   camera.position.set(20, 20, 20);
   camera.lookAt(scene.position);

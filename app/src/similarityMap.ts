@@ -25,9 +25,21 @@ const tooltip = d3
   .style("opacity", 0);
 
 interface WeightedRegion {
-  region: RegionModelModel;
+  region: string;
   score: number;
 }
+
+let regions;
+
+const fetchRegions = async () => {
+  if (regions) {
+    return regions;
+  }
+  const result = await fetch("/api/regions");
+  const json = (await result.json()) as { [key: string]: RegionModelModel };
+  regions = json;
+  return json;
+};
 
 const fetchSimilar = async region => {
   const result = await fetch("/api/similar", {
@@ -47,138 +59,158 @@ var zoom = false;
 
 export function initialise() {
   let initialised = false;
-  if (module.hot) {
-    module.hot.dispose(() => {
-      document.querySelector("#similar-map").innerHTML = "";
-    });
-  }
 
-  region$.subscribe(region => {
+  const subscription = region$.subscribe(region => {
     // add the graph canvas to the body of the webpage
     document.querySelector(
       "#similar-label"
     ).textContent = `Similar to ${region["model"]["name"]}`;
 
-    fetchSimilar(region).then(similar => {
-      const vis = svg.selectAll(".dot").data(similar);
-      if (!initialised) {
-        initialised = true;
-        vis
-          .enter()
-          .append("circle")
-          .attr("class", "dot")
-          .attr("r", 3)
-          .attr(
-            "cy",
-            point =>
-              (height * (point.region.lat - latitude[0])) /
-              (latitude[1] - latitude[0])
-          )
-          .attr(
-            "cx",
-            point =>
-              (width * (point.region.lon - longitude[0])) /
-              (longitude[1] - longitude[0])
-          )
-          .style("fill", point => "blue")
-          .style("opacity", point => Math.max(1 - point.score * 100000, 0.01))
-          .on("mouseover", function(d) {
-            tooltip
-              .transition()
-              .duration(200)
-              .style("opacity", 0.9);
-            tooltip
-              .text(d.region.name)
-              .style("left", d3.event.pageX + 5 + "px")
-              .style("top", d3.event.pageY - 28 + "px");
-          })
-          .on("mouseout", function(d) {
-            tooltip
-              .transition()
-              .duration(500)
-              .style("opacity", 0);
-          })
-          .on("click", async d => {
-            if (d3.event.shiftKey) {
-              if (zoom == false) {
-                console.log("hi!");
-                const zoom_lat = [d.region.lat - 0.1, d.region.lat + 0.1];
-                const zoom_lon = [d.region.lon - 0.1, d.region.lon + 0.1];
+    fetchRegions().then(regions =>
+      fetchSimilar(region).then(similar => {
+        const getRegion = name => regions[name];
+        const vis = svg.selectAll(".dot").data(similar);
+        if (!initialised) {
+          initialised = true;
+          vis
+            .enter()
+            .append("circle")
+            .attr("class", "dot")
+            .attr("r", 3)
+            .attr(
+              "cy",
+              point =>
+                height -
+                (height * (getRegion(point.region).lat - latitude[0])) /
+                  (latitude[1] - latitude[0])
+            )
+            .attr(
+              "cx",
+              point =>
+                (width * (getRegion(point.region).lon - longitude[0])) /
+                (longitude[1] - longitude[0])
+            )
+            .style("fill", point => "blue")
+            .style("opacity", point => Math.max(1 - point.score * 100000, 0.01))
+            .on("mouseover", function(d) {
+              tooltip
+                .transition()
+                .duration(200)
+                .style("opacity", 0.9);
+              tooltip
+                .text(getRegion(getRegion(d.region)).name)
+                .style("left", d3.event.pageX + 5 + "px")
+                .style("top", d3.event.pageY - 28 + "px");
+            })
+            .on("mouseout", function(d) {
+              tooltip
+                .transition()
+                .duration(500)
+                .style("opacity", 0);
+            })
+            .on("click", async d => {
+              if (d3.event.shiftKey) {
+                if (zoom == false) {
+                  console.log("hi!");
+                  const zoom_lat = [
+                    getRegion(d.region).lat - 0.1,
+                    getRegion(d.region).lat + 0.1
+                  ];
+                  const zoom_lon = [
+                    getRegion(d.region).lon - 0.1,
+                    getRegion(d.region).lon + 0.1
+                  ];
 
-                svg
-                  .selectAll(".dot")
-                  .transition()
-                  .attr(
-                    "cy",
-                    point =>
-                      (height *
-                        ((point as WeightedRegion).region.lat - zoom_lat[0])) /
-                      (zoom_lat[1] - zoom_lat[0])
-                  )
-                  .attr(
-                    "cx",
-                    point =>
-                      (width *
-                        ((point as WeightedRegion).region.lon - zoom_lon[0])) /
-                      (zoom_lon[1] - zoom_lon[0])
-                  );
-              } else {
-                svg
-                  .selectAll(".dot")
-                  .transition()
-                  .attr(
-                    "cy",
-                    point =>
-                      (height * (point.region.lat - latitude[0])) /
-                      (latitude[1] - latitude[0])
-                  )
-                  .attr(
-                    "cx",
-                    point =>
-                      (width * (point.region.lon - longitude[0])) /
-                      (longitude[1] - longitude[0])
-                  );
-              }
-              zoom = !zoom;
-            } else {
-              const result = await fetch("/api/tiles", {
-                method: "POST",
-                body: JSON.stringify(d.region),
-                headers: {
-                  "Content-Type": "application/json"
+                  svg
+                    .selectAll(".dot")
+                    .transition()
+                    .attr(
+                      "cy",
+                      point =>
+                        height -
+                        (height *
+                          (getRegion((point as WeightedRegion).region).lat -
+                            zoom_lat[0])) /
+                          (zoom_lat[1] - zoom_lat[0])
+                    )
+                    .attr(
+                      "cx",
+                      point =>
+                        (width *
+                          (getRegion((point as WeightedRegion).region).lon -
+                            zoom_lon[0])) /
+                        (zoom_lon[1] - zoom_lon[0])
+                    );
+                } else {
+                  svg
+                    .selectAll(".dot")
+                    .transition()
+                    .attr(
+                      "cy",
+                      point =>
+                        height -
+                        (height *
+                          (getRegion((point as WeightedRegion).region).lat -
+                            latitude[0])) /
+                          (latitude[1] - latitude[0])
+                    )
+                    .attr(
+                      "cx",
+                      point =>
+                        (width *
+                          (getRegion((point as WeightedRegion).region).lon -
+                            longitude[0])) /
+                        (longitude[1] - longitude[0])
+                    );
                 }
-              });
+                zoom = !zoom;
+              } else {
+                const result = await fetch("/api/tiles", {
+                  method: "POST",
+                  body: JSON.stringify(getRegion(d.region)),
+                  headers: {
+                    "Content-Type": "application/json"
+                  }
+                });
 
-              const json = (await result.json()) as TileModel[];
-              region$.next({ model: d.region, tiles: json });
-            }
-          });
-      } else {
-        vis
-          .style("opacity", point => Math.max(1 - point.score * 100000, 0.01))
-          .attr(
-            "cy",
-            point =>
-              (height * (point.region.lat - latitude[0])) /
-              (latitude[1] - latitude[0])
-          )
-          .attr(
-            "cx",
-            point =>
-              (width * (point.region.lon - longitude[0])) /
-              (longitude[1] - longitude[0])
-          )
-          .on("mouseover", function(d) {
-            tooltip
-              .transition()
-              .duration(200)
-              .style("opacity", 0.9);
-            tooltip
-              .text(d.region.name)
-              .style("left", d3.event.pageX + 5 + "px")
-              .style("top", d3.event.pageY - 28 + "px");
-          });
-      }
-    });
+                const json = (await result.json()) as TileModel[];
+                region$.next({ model: getRegion(d.region), tiles: json });
+              }
+            });
+        } else {
+          vis
+            .style("opacity", point => Math.max(1 - point.score * 100000, 0.01))
+            .attr(
+              "cy",
+              point =>
+                height -
+                (height * (getRegion(point.region).lat - latitude[0])) /
+                  (latitude[1] - latitude[0])
+            )
+            .attr(
+              "cx",
+              point =>
+                (width * (getRegion(point.region).lon - longitude[0])) /
+                (longitude[1] - longitude[0])
+            )
+            .on("mouseover", function(d) {
+              tooltip
+                .transition()
+                .duration(200)
+                .style("opacity", 0.9);
+              tooltip
+                .text(getRegion(d.region).name)
+                .style("left", d3.event.pageX + 5 + "px")
+                .style("top", d3.event.pageY - 28 + "px");
+            });
+        }
+      })
+    );
   });
+  if (module.hot) {
+    module.hot.dispose(() => {
+      document.querySelector("#similar-map").innerHTML = "";
+      subscription.unsubscribe();
+    });
+  }
 }
