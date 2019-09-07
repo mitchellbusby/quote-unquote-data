@@ -86,7 +86,7 @@ export function initialise() {
                 .attr("stroke","black")
                 .attr("stroke-width",1)
             .style("fill", point => "black")
-            .style("opacity", point => Math.max(1 - point.score * 100000, 0.1))
+            .style("opacity", point => Math.max(1 - point.score, 0.1))
             .on("mouseover", function(d) {
               tooltip
                 .transition()
@@ -143,7 +143,7 @@ export function initialise() {
             });
         } else {
           vis
-            .style("opacity", point => Math.max(1 - point.score * 100000, 0.1))
+            .style("opacity", point => Math.max(1 - point.score, 0.1))
             .attr("points", getPoly([latitude, longitude]))
             .on("mouseover", function(d) {
               tooltip
