@@ -10,6 +10,7 @@
     "@types/webpack-env": "^1.14.0",
     "d3": "^5.12.0",
     "parcel-bundler": "1.11.0",
+    "rxjs": "^6.5.3",
     "sass": "^1.23.0-module.beta.1",
     "tachyons": "4.10.0",
     "three": "^0.108.0"

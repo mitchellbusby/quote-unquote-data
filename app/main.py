@@ -5,6 +5,7 @@ import random
 import numpy
 
 from flask import Flask, render_template, jsonify, request
+import sklearn.preprocessing
 
 app = Flask(
     __name__,
@@ -50,17 +51,15 @@ def distance(a, b):
 def get_similar_regions(model):
     regions = get_regions()
 
-    pop_min = min(region['population'] for region in regions)
-    pop_max = max(region['population'] for region in regions)
-    income_min = min(region['income'] for region in regions)
-    income_max = max(region['income'] for region in regions)
+    pop_sum = sum(region['population'] for region in regions)
+    income_sum = sum(region['income'] for region in regions)
     normalised = [dict(
         region=region,
-        pop=(region['population'] - pop_min) / (pop_max - pop_min),
-        income=(region['income'] - income_min) / (income_max - income_min))
+        pop=region['population'] / pop_sum,
+        income=region['income'] / income_sum)
         for region in regions
     ]
-    vec = (model['population'] - pop_min) / (pop_max - pop_min), (model['income'] - income_min) / (income_max - income_min)
+    vec = model['population'] / pop_sum, model['income'] / income_sum
     normalised = [{**x, 'score': distance(vec, (x['pop'], x['income']))} for x in normalised]
     return sorted(normalised, key=lambda x: x['score'])
 

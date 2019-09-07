@@ -1,14 +1,15 @@
+import { BoxGeometry, Mesh, MeshStandardMaterial, Scene } from "three";
+import { RegionModel } from "./fetchTile";
 import "./main.scss";
-
-import { Scene, BoxGeometry, MeshStandardMaterial, Mesh } from "three";
 import { setLighting, setupCamera, setUpRenderer } from "./sceneSetup";
 import { Zone } from "./ZoneTypes";
-import { RegionModel } from "./fetchTile";
+
+let active = [];
 
 const canvas = document.getElementById(
   "c-isometric-canvas"
 ) as HTMLCanvasElement;
-const title = document.getElementById('title');
+const title = document.getElementById("title");
 
 const context = canvas.getContext("webgl2");
 
@@ -27,11 +28,10 @@ const ZoneColors = {
   [Zone.Residential]: "#007f00",
   [Zone.Commercial]: "#6666e6",
   [Zone.Industrial]: "#ff0000",
-  [Zone.Unknown]: "#ffffff",
+  [Zone.Unknown]: "#ffffff"
 };
 // todo: density
 
-const TileHeight = 1;
 const TileDiameter = 3;
 const TileGap = 0.1;
 
@@ -52,6 +52,7 @@ function setRegion(region: RegionModel) {
     const geometry = new BoxGeometry(TileDiameter, height, TileDiameter);
     const cube = new Mesh(geometry, material);
     scene.add(cube);
+    active.push(cube);
 
     cube.translateX(mapDistanceToInternal(tile.coordinates.x));
     cube.translateZ(mapDistanceToInternal(tile.coordinates.y));
@@ -75,4 +76,11 @@ const regionViewerInitialise = region => {
   animate();
 };
 
-export { regionViewerInitialise };
+const destroy = () => {
+  active.forEach(obj => {
+    scene.remove(obj);
+    obj.dispose();
+  });
+};
+
+export { regionViewerInitialise, destroy };

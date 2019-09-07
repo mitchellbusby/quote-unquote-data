@@ -14,7 +14,7 @@ const fetchSimilar = async region => {
   });
 
   const json = (await result.json()) as Array<{
-    region: { lat: number; lon: number, name: string };
+    region: { lat: number; lon: number; name: string };
     score: number;
   }>;
 
@@ -35,19 +35,14 @@ export function initialise(region) {
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
   fetchSimilar(region).then(similar => {
-    console.log(similar);
-    const latitude = [
-      -34.1,
-      -33.52
-    ];
-    const longitude = [
-      150.4,
-      151.36
-    ];
+    const latitude = [-34.1, -33.52];
+    const longitude = [150.4, 151.36];
 
-    const tooltip = d3.select("#similar-map").append("div")
-    .attr("class", "tooltip")
-    .style("opacity", 0);
+    const tooltip = d3
+      .select("#similar-map")
+      .append("div")
+      .attr("class", "tooltip")
+      .style("opacity", 0);
 
     svg
       .selectAll(".dot")
@@ -67,16 +62,14 @@ export function initialise(region) {
           (width * (point.lon - longitude[0])) / (longitude[1] - longitude[0])
       )
       .style("fill", point => "blue")
-      .style("opacity", point => 1 - point.score)
+      .style("opacity", point => Math.max(1 - point.score * 100000, 0.01))
       .on("mouseover", function(d) {
         tooltip
           .transition()
           .duration(200)
           .style("opacity", 0.9);
         tooltip
-          .text(
-            d.name
-          )
+          .text(d.name)
           .style("left", d3.event.pageX + 5 + "px")
           .style("top", d3.event.pageY - 28 + "px");
       })
@@ -84,6 +77,7 @@ export function initialise(region) {
         tooltip
           .transition()
           .duration(500)
-          .style("opacity", 0);;
+          .style("opacity", 0);
+      });
   });
 }
