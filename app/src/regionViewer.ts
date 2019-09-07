@@ -19,8 +19,9 @@ const aspect = canvasBoundingRect.width / canvasBoundingRect.height;
 
 const d = 20;
 
-const { camera } = setupCamera(aspect, d, scene);
 const { renderer } = setUpRenderer(canvas, context, canvasBoundingRect);
+const { camera, controls } = setupCamera(aspect, d, scene, renderer);
+
 setLighting(scene);
 
 // todo: get sc4 color codes
@@ -34,9 +35,10 @@ const ZoneColors = {
 
 const TileDiameter = 3;
 const TileGap = 0.1;
+const TilePadding = 0.2;
 
 const mapDistanceToInternal = (distance: number) => {
-  return TileDiameter * (distance - TileGap);
+  return TileDiameter * (distance - TileGap - 1.5);
 };
 
 const mapPopulationToDensity = (population: number) => population / 10;
@@ -49,7 +51,11 @@ function setRegion(region: RegionModel) {
     });
 
     const height = mapPopulationToDensity(tile.population);
-    const geometry = new BoxGeometry(TileDiameter, height, TileDiameter);
+    const geometry = new BoxGeometry(
+      TileDiameter - TilePadding * 2,
+      height,
+      TileDiameter - TilePadding * 2
+    );
     const cube = new Mesh(geometry, material);
     scene.add(cube);
     active.push(cube);
@@ -61,9 +67,9 @@ function setRegion(region: RegionModel) {
 }
 
 function animate() {
+  controls.update();
   renderer.render(scene, camera);
   let token = requestAnimationFrame(animate);
-
   if (module.hot) {
     module.hot.dispose(() => {
       cancelAnimationFrame(token);
