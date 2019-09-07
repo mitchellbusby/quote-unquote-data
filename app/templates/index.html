@@ -1,12 +1,15 @@
 <html>
+    <head>
+        <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+    </head>
     <body>
         <div class="c-main-canvas mw9 center flex ph3-ns mv3">
             <div class="c-suburb-isometric w-100 w-50-ns pa2">
                 <!-- The isometric map for the suburb -->
                 <div><span id="title"></span></div>
                 <!-- todo: make responsive :S -->
-                <canvas id="c-isometric-canvas" height="500" width="400">
-
+                <canvas id="c-isometric-canvas">
+                    
                 </canvas>
             </div>
             <div class="w-100 w-50-ns pa2">
@@ -34,7 +37,6 @@
         </div>
       </div>
     </div>
-  </body>
-  <script src="{{ url_for('static', filename='index.js') }}"></script>
-  <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}" />
+    </body>
+    <script src="{{ url_for('static', filename='index.js') }}"></script>
 </html>

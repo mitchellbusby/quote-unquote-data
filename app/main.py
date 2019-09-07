@@ -80,15 +80,16 @@ def tiles_from_region(region):
     pop_grid *= region['population']
 
     zones = []
-
-    for zone, proportion in region['zoning'].items():
+    region_zoning = {k:v for k, v in region['zoning'].items() if k != 'U'}
+    normalisation = sum(region_zoning.values())
+    for zone, proportion in region_zoning.items():
         # r, c, u, i, p, w
-        cell_value = round((proportion / 10000) * 16)
+        cell_value = round((proportion / normalisation) * 16)
         zones.extend([zone] * cell_value)
 
     while len(zones) < 16:
         zones.append('U')
-
+    print('Generated zones:', zones)
 
     assert len(zones) == 16, str((len(zones), region['zoning'], sum(region['zoning'].values())))
 

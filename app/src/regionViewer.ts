@@ -30,7 +30,9 @@ const ZoneColors = {
   [Zone.Residential]: "#007f00",
   [Zone.Commercial]: "#6666e6",
   [Zone.Industrial]: "#ff0000",
-  [Zone.Unknown]: "#ffffff"
+  [Zone.Water]: "#ddddff",
+  [Zone.Park]: "#66ee66",
+  [Zone.Unknown]: "#ffffff",
 };
 
 const BUILDING_COLOR = "#eeeeee";
