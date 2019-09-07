@@ -1,4 +1,6 @@
+import { BoxGeometry, Mesh, MeshStandardMaterial, Scene } from "three";
 import "./main.scss";
+<<<<<<< HEAD
 
 import {
   Scene,
@@ -9,6 +11,9 @@ import {
 import { setLighting, setUpRenderer, setupCamera } from "./sceneSetup";
 import { fetchRegion } from "./fetchTile";
 import {Zone} from "./ZoneTypes";
+=======
+import { setLighting, setupCamera, setUpRenderer } from "./sceneSetup";
+>>>>>>> 9f1b7e156feb96cd8ce585ee309c60df98c9ddec
 
 const canvas = document.getElementById(
   "c-isometric-canvas"
@@ -22,8 +27,8 @@ const aspect = canvasBoundingRect.width / canvasBoundingRect.height;
 
 const d = 20;
 
-const {camera} = setupCamera(aspect, d, scene);
-const {renderer} = setUpRenderer(canvas, context, canvasBoundingRect);
+const { camera } = setupCamera(aspect, d, scene);
+const { renderer } = setUpRenderer(canvas, context, canvasBoundingRect);
 setLighting(scene);
 
 // todo: get sc4 color codes
@@ -37,19 +42,18 @@ const ZoneColors = {
 const TileHeight = 1;
 const TileDiameter = 3;
 
-fetchRegion()
-  .then((region) => {
-    region.tiles.forEach((tile, idx) => {
-      const material = new MeshStandardMaterial({
-        color: ZoneColors[Zone.Residential],
-      });
-      const geometry = new BoxGeometry(TileDiameter, TileHeight, TileDiameter);
-      const cube = new Mesh(geometry, material);
-      scene.add(cube);
-
-      cube.translateX(idx * 3);
+function setRegion(region) {
+  region.tiles.forEach((tile, idx) => {
+    const material = new MeshStandardMaterial({
+      color: ZoneColors[Zone.Residential]
     });
+    const geometry = new BoxGeometry(TileDiameter, TileHeight, TileDiameter);
+    const cube = new Mesh(geometry, material);
+    scene.add(cube);
+
+    cube.translateX(idx * 3);
   });
+}
 
 function animate() {
   renderer.render(scene, camera);
@@ -62,9 +66,9 @@ function animate() {
   }
 }
 
-
-const regionViewerInitialise = () => {
+const regionViewerInitialise = region => {
+  setRegion(region);
   animate();
-}
+};
 
-export {regionViewerInitialise};
+export { regionViewerInitialise };

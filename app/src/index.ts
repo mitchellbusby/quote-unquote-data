@@ -1,5 +1,9 @@
+import { fetchRegion } from "./fetchTile";
 import "./main.scss";
+import { regionViewerInitialise } from "./regionViewer";
+import { initialise as similarityMapInititalise } from "./similarityMap";
 
-import {regionViewerInitialise} from "./regionViewer";
-
-regionViewerInitialise();
+fetchRegion().then(region => {
+  similarityMapInititalise(region);
+  regionViewerInitialise(region);
+});
