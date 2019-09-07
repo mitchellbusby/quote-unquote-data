@@ -1,7 +1,7 @@
-enum Zones {
+enum Zone {
     Residential = "residential",
     Commercial = "commercial",
     Industrial = "industrial",
 }
 
-export {Zones};
+export {Zone};

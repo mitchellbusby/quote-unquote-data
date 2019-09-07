@@ -1,3 +1,5 @@
+import { Zone } from "./ZoneTypes";
+
 const fetchRegion = async () => {
   const result = await fetch("/api/region");
 
@@ -12,6 +14,7 @@ interface TileModel {
   name: string;
   population: number;
   sa2: string;
+  zone: Zone
 }
 
 interface RegionModel {

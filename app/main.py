@@ -29,8 +29,12 @@ def region_get():
     with open('data/sa2_regions.json') as regions_file:
         regions = json.load(regions_file)
     region = random.choice(regions)
+    # add tiles
+    tile = {**region}
+    tile['zone'] = 'residential'
+    tiles = [tile, tile, tile, tile]
     return jsonify({
-        'tiles': [region],
+        'tiles': tiles,
         'model': region,
     })
 

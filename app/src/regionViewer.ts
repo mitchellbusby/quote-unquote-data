@@ -8,7 +8,7 @@ import {
 } from "three";
 import { setLighting, setUpRenderer, setupCamera } from "./sceneSetup";
 import { fetchRegion } from "./fetchTile";
-import {Zones} from "./ZoneTypes";
+import {Zone} from "./ZoneTypes";
 
 const canvas = document.getElementById(
   "c-isometric-canvas"
@@ -28,9 +28,9 @@ setLighting(scene);
 
 // todo: get sc4 color codes
 const ZoneColors = {
-  [Zones.Residential]: "#1ddb00",
-  [Zones.Commercial]: "#fcba03",
-  [Zones.Industrial]: "#1ddb00",
+  [Zone.Residential]: "#007f00",
+  [Zone.Commercial]: "#6666e6",
+  [Zone.Industrial]: "#ff0000",
 }
 // todo: density
 
@@ -41,7 +41,7 @@ fetchRegion()
   .then((region) => {
     region.tiles.forEach((tile, idx) => {
       const material = new MeshStandardMaterial({
-        color: ZoneColors[Zones.Residential],
+        color: ZoneColors[Zone.Residential],
       });
       const geometry = new BoxGeometry(TileDiameter, TileHeight, TileDiameter);
       const cube = new Mesh(geometry, material);
