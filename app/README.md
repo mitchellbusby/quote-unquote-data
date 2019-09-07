@@ -14,3 +14,11 @@ $ python main.py
 ```
 
 Go to [http://localhost:5000]
+
+
+## Source mapping
+
+### Client sources
+
+### src/
+Contains most of the things - main.scss, main.ts

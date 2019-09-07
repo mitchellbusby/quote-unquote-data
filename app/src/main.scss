@@ -3,3 +3,16 @@
 // Lets grab Tachyons
 @import "~tachyons";
 
+.c-main-canvas {
+    .c-suburb-isometric {
+        height: 400px;
+        border: 1px solid black;
+    }
+    .c-suburb-controls {
+        border: 1px solid black;
+    }
+
+    .c-suburb-som {
+        border: 1px solid black;
+    }
+}
