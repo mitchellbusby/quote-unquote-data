@@ -70,6 +70,21 @@ def tiles_from_region(region):
 
     pop_grid *= region['population']
 
+    zones = []
+
+    for zone, proportion in region['zoning'].items():
+        # r, c, u, i, p, w
+        cell_value = round((proportion / 10000) * 16)
+        zones.extend([zone] * cell_value)
+
+    while len(zones) < 16:
+        zones.append('U')
+
+
+    assert len(zones) == 16, str((len(zones), region['zoning'], sum(region['zoning'].values())))
+
+    zones = numpy.reshape(zones, (4, 4))
+
     tiles = []
 
     for y in range(4):
@@ -81,6 +96,7 @@ def tiles_from_region(region):
             }
 
             tile['population'] = pop_grid[y, x]
+            tile['zone'] = zones[y, x]
             tiles.append(tile)
     return tiles
 

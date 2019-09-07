@@ -25,7 +25,8 @@ setLighting(scene);
 const ZoneColors = {
   [Zone.Residential]: "#007f00",
   [Zone.Commercial]: "#6666e6",
-  [Zone.Industrial]: "#ff0000"
+  [Zone.Industrial]: "#ff0000",
+  [Zone.Unknown]: "periwinkle"
 };
 // todo: density
 
@@ -42,7 +43,7 @@ const mapPopulationToDensity = (population: number) => population / 10;
 function setRegion(region: RegionModel) {
   region.tiles.forEach((tile, idx) => {
     const material = new MeshStandardMaterial({
-      color: ZoneColors[Zone.Residential]
+      color: ZoneColors[tile.zone] || ZoneColors[Zone.Unknown]
     });
 
     const height = mapPopulationToDensity(tile.population);
