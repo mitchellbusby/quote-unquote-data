@@ -8,8 +8,9 @@
     "parcel-bundler": "^1.12.3"
   },
   "scripts": {
-    "dev": "parcel index.html",
-    "build": "parcel index.html"
+    "start": "yarn run build",
+    "build": "parcel build static/src/index.ts -d static/dist",
+    "watch": "parcel watch static/src/index.ts -d static/dist"
   },
   "devDependencies": {
     "typescript": "^3.6.2"
