@@ -2,7 +2,9 @@ enum Zone {
   Residential = "R",
   Commercial = "C",
   Industrial = "I",
-  Unknown = "U"
+  Unknown = "U",
+  Park = "P",
+  Water = "W",
 }
 
 export { Zone };
