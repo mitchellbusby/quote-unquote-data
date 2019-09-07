@@ -1,5 +1,5 @@
 import { BoxGeometry, Mesh, MeshStandardMaterial, Scene } from "three";
-import { RegionModel } from "./fetchTile";
+import { region$, RegionModel } from "./fetchTile";
 import "./main.scss";
 import { setLighting, setupCamera, setUpRenderer } from "./sceneSetup";
 import { Zone } from "./ZoneTypes";
@@ -71,16 +71,18 @@ function animate() {
   }
 }
 
-const regionViewerInitialise = region => {
-  setRegion(region);
-  animate();
-};
-
 const destroy = () => {
   active.forEach(obj => {
     scene.remove(obj);
-    obj.dispose();
   });
 };
 
-export { regionViewerInitialise, destroy };
+const initialise = () => {
+  region$.subscribe(region => {
+    destroy();
+    setRegion(region);
+    animate();
+  });
+};
+
+export { initialise };
