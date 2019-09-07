@@ -1,26 +1,25 @@
 <html>
-    <body>
-        <div class="c-main-canvas mw9 center ph3-ns mv3">
-            <div class="c-suburb-isometric fl w-100 w-50-ns pa2">
-                <!-- The isometric map for the suburb -->
-                <div>Isometric map</div>
-                <!-- todo: make responsive :S -->
-                <canvas id="c-isometric-canvas" height="500" width="400">
-                    
-                </canvas>
-            </div>
-            <div class="fl w-100 w-50-ns pa2">
-                <div class="c-suburb-controls">
-                    <!-- Various toggles for the suburbs -->
-                    <div>Controls</div>
-                </div>
-                <div class="c-suburb-som">
-                    <!-- The SOM for the suburbs -->
-                    <div>SOM</div>
-                </div>
-            </div>
+  <body>
+    <div class="c-main-canvas mw9 center ph3-ns mv3">
+      <div class="c-suburb-isometric fl w-100 w-50-ns pa2">
+        <!-- The isometric map for the suburb -->
+        <div>Isometric map</div>
+        <!-- todo: make responsive :S -->
+        <canvas id="c-isometric-canvas" height="500" width="400"> </canvas>
+      </div>
+      <div class="fl w-100 w-50-ns pa2">
+        <div class="c-suburb-controls">
+          <!-- Various toggles for the suburbs -->
+          <div>Controls</div>
         </div>
-    </body>
-    <script src="{{ url_for('static', filename='index.js') }}"></script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+        <div class="c-suburb-som">
+          <!-- The SOM for the suburbs -->
+          <div id="similar-label"></div>
+          <div id="similar-map"></div>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script src="{{ url_for('static', filename='index.js') }}"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}" />
 </html>
