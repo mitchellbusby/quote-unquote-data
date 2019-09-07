@@ -18,10 +18,14 @@ app = Flask(
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 
 @lru_cache()
-def get_regions():
+def get_regions():        
     with open(os.path.dirname(os.path.realpath(__file__)) + '/data/suburb_regions.json') as regions_file:
-        return json.load(regions_file)
-app.config['TEMPLATES_AUTO_RELOAD'] = True
+        regions = json.load(regions_file)
+    with open(os.path.dirname(os.path.realpath(__file__)) + '/data/suburb_boundaries.json') as bounds_file:
+        boundaries = json.load(bounds_file)
+    indexed_boundaries = {suburb['properties']['LC_PLY_PID']: suburb for suburb in boundaries['features']}
+    return [{**region, 'geometry': indexed_boundaries[region['id']]['geometry']['coordinates'][0]} for region in regions]
+
 
 @lru_cache()
 def get_sa2_regions():

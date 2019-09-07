@@ -13,7 +13,7 @@ const svg = d3
   .append("g")
   .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-const INITIAL_VIEWPORT = [[-34.1, -33.52], [150.4, 151.36]];
+const INITIAL_VIEWPORT = [[-34.1, -33.52], [150.6, 151.36]];
 
 let latitude = INITIAL_VIEWPORT[0];
 let longitude = INITIAL_VIEWPORT[1];
@@ -69,36 +69,31 @@ export function initialise() {
     fetchRegions().then(regions =>
       fetchSimilar(region).then(similar => {
         const getRegion = name => regions[name];
+        const getPoly = ([lat, lon]) => (d => {
+              const region = getRegion(d.region);
+              return region.geometry.map(([y, x]) => `${(width * (y - lon[0])) /
+                (lon[1] - lon[0])},${height -
+                  (height * (x - lat[0])) /
+                    (lat[1] - lat[0])}`).join(" ")});
         const vis = svg.selectAll(".dot").data(similar);
         if (!initialised) {
           initialised = true;
           vis
             .enter()
-            .append("circle")
+            .append("polygon")
             .attr("class", "dot")
-            .attr("r", 3)
-            .attr(
-              "cy",
-              point =>
-                height -
-                (height * (getRegion(point.region).lat - latitude[0])) /
-                  (latitude[1] - latitude[0])
-            )
-            .attr(
-              "cx",
-              point =>
-                (width * (getRegion(point.region).lon - longitude[0])) /
-                (longitude[1] - longitude[0])
-            )
-            .style("fill", point => "blue")
-            .style("opacity", point => Math.max(1 - point.score, 0.01))
+            .attr("points", getPoly([latitude, longitude]))
+                .attr("stroke","black")
+                .attr("stroke-width",1)
+            .style("fill", point => "black")
+            .style("opacity", point => Math.max(1 - point.score, 0.1))
             .on("mouseover", function(d) {
               tooltip
                 .transition()
                 .duration(200)
                 .style("opacity", 0.9);
               tooltip
-                .text(getRegion(getRegion(d.region)).name)
+                .text(getRegion(d.region).name)
                 .style("left", d3.event.pageX + 5 + "px")
                 .style("top", d3.event.pageY - 28 + "px");
             })
@@ -111,7 +106,6 @@ export function initialise() {
             .on("click", async d => {
               if (d3.event.shiftKey) {
                 if (zoom == false) {
-                  console.log("hi!");
                   const zoom_lat = [
                     getRegion(d.region).lat - 0.1,
                     getRegion(d.region).lat + 0.1
@@ -124,44 +118,14 @@ export function initialise() {
                   svg
                     .selectAll(".dot")
                     .transition()
-                    .attr(
-                      "cy",
-                      point =>
-                        height -
-                        (height *
-                          (getRegion((point as WeightedRegion).region).lat -
-                            zoom_lat[0])) /
-                          (zoom_lat[1] - zoom_lat[0])
-                    )
-                    .attr(
-                      "cx",
-                      point =>
-                        (width *
-                          (getRegion((point as WeightedRegion).region).lon -
-                            zoom_lon[0])) /
-                        (zoom_lon[1] - zoom_lon[0])
-                    );
+                    .attr("points", getPoly([zoom_lat, zoom_lon]))
+                    ;
                 } else {
                   svg
                     .selectAll(".dot")
                     .transition()
-                    .attr(
-                      "cy",
-                      point =>
-                        height -
-                        (height *
-                          (getRegion((point as WeightedRegion).region).lat -
-                            latitude[0])) /
-                          (latitude[1] - latitude[0])
-                    )
-                    .attr(
-                      "cx",
-                      point =>
-                        (width *
-                          (getRegion((point as WeightedRegion).region).lon -
-                            longitude[0])) /
-                        (longitude[1] - longitude[0])
-                    );
+                      .attr("points", getPoly([zoom_lat, zoom_lon]));
+
                 }
                 zoom = !zoom;
               } else {
@@ -179,20 +143,8 @@ export function initialise() {
             });
         } else {
           vis
-            .style("opacity", point => Math.max(1 - point.score * 100000, 0.01))
-            .attr(
-              "cy",
-              point =>
-                height -
-                (height * (getRegion(point.region).lat - latitude[0])) /
-                  (latitude[1] - latitude[0])
-            )
-            .attr(
-              "cx",
-              point =>
-                (width * (getRegion(point.region).lon - longitude[0])) /
-                (longitude[1] - longitude[0])
-            )
+            .style("opacity", point => Math.max(1 - point.score, 0.1))
+            .attr("points", getPoly([latitude, longitude]))
             .on("mouseover", function(d) {
               tooltip
                 .transition()
