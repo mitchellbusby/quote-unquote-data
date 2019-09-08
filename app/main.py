@@ -7,6 +7,10 @@ import os
 
 from flask import Flask, render_template, jsonify, request
 import sklearn.preprocessing
+import pandas
+
+import generate
+import som
 
 app = Flask(
     __name__,
@@ -44,9 +48,8 @@ def index():
 
 @app.route('/api/region')
 def region_get():
-    regions = get_regions()
-    region = random.choice(regions)
-    tiles = tiles_from_region(region)
+    sa1s, region = generate.sample_suburb()
+    tiles = tiles_from_region(sa1s, generated=True)
     return jsonify({
         'tiles': tiles,
         'model': region,
@@ -69,50 +72,45 @@ def similarities_get():
 def distance(a, b):
     return math.sqrt(sum((x1 - x2)**2 for x1, x2 in zip(b, a)))
 
+def get_features(models, scaler=None):
+    feature_names = [
+        'rental_rate',
+        'median_rent',
+        'income',
+        'religious',
+        'population',
+        'unemployment'
+    ]
+
+    rows_and_columns = []
+    for region in models:
+        features = [region[feature] for feature in feature_names]
+        for zone_type in "RCIWP":
+            features.append(region['zoning'].get(zone_type, 0))
+        rows_and_columns.append(numpy.nan_to_num(features))
+
+    if not scaler:
+        scaler = sklearn.preprocessing.StandardScaler()
+        features = scaler.fit_transform(rows_and_columns)
+    else:
+        features = scaler.transform(rows_and_columns)
+    return features, scaler
+
+
 def get_similar_regions(model):
     regions = get_regions()
-    """
-     ## Sum (get the sums of the different metrics)
-    ## TODO: religious, rental_rate, unemployment, median rent
-    metrics = [
-        'population',
-        'income',
-        # We commented out unemployment because it doesn't normalise well yet...oops
-        # 'unemployment',
-        'median_rent'
-    ]
-    # k: metric name, v: sum
-
-    sums = {metric: sum(region[metric] for region in regions) or 1 for metric in metrics}
-
-
-    ## Weight the things + create vectors (region.metric / sum)
-    normalised = [dict(
-        region=region,
-        vector=[
-            region[metric] / sums[metric] for metric in metrics
-        ])
-        for region in regions
-    ]
-
-    ## Create a vector for the current region (model/sum)
-    base_vector = [model[metric] / sums[metric] for metric in metrics]
-    # vec = model['population'] / sums['population'], model['income'] / sums['income']
-
-    ## Then add then to a list and pairwise (with the model) apply the distance fn
-    normalised = [{'region': x['region']['id'], 'score': distance(base_vector, x['vector'])} for x in normalised]
-    score_max = max(x['score'] for x in normalised)
-    normalised = [{**x, 'score': x['score']/score_max} for x in normalised] """
-    similarities = get_som_winners()
-
-    this_region_location = similarities[model['id']]
-
-    normalised = [{'region': r['id'], 'score': distance(similarities[r['id']], this_region_location) /
-        numpy.sqrt(25 ** 2 * 2)} for r in regions]
-    print(normalised)
-
-    ## Then sort the list by them
-    return sorted(normalised, key=lambda x: x['score'])
+    features, scaler = get_features(regions)
+    this_features, _ = get_features([model], scaler)
+    print('Features shape is', features.shape)
+    print('One feature shape is', this_features.shape)
+    distances = numpy.sqrt(numpy.sum((this_features - features) ** 2, axis=1))
+    distances /= distances.max()
+    series = pandas.Series(distances)
+    scores = series.rank(method="dense", ascending=1).astype(int).values / len(distances)
+    results = []
+    for r, d in zip(regions, scores):
+        results.append({'region': r['id'], 'score': d})
+    return sorted(results, key=lambda x: x['score'])
 
 
 def shift_tile(tile, dx, dy):
@@ -123,15 +121,23 @@ def shift_tile(tile, dx, dy):
 def shift_tiles(tiles, dx, dy):
     return [shift_tile(t, dx, dy) for t in tiles]
 
-def tiles_from_region(region):
-    random_state = numpy.random.RandomState(seed=int(region['id']))
-    sa1_regions = get_sa2_regions()
-    sa1s = [sa1_regions[sa1] for sa1 in region['sa1']]
+def geo_mean(iterable):
+    a = numpy.array(iterable)
+    return a.prod() ** (1.0 / len(a))
+
+def tiles_from_region(region, generated=False):
+    if not generated:
+        random_state = numpy.random.RandomState(seed=int(region['id']))
+        sa1_regions = get_sa2_regions()
+        sa1s = [sa1_regions[sa1] for sa1 in region['sa1']]
+    else:
+        random_state = numpy.random
+        sa1s = region
+
     sa1_tiles = [tiles_from_sa1_region(sa1, random_state=random_state) for sa1 in sa1s]
     # Put a SA1 in the middle of the map.
     the_map = sa1_tiles.pop()
     # Repeatedly add SA1 regions.
-    full_offsets = {}
     occupied_offsets = {(0, 0)}
     occupied_offset_list = list(occupied_offsets)
     while sa1_tiles:
@@ -157,6 +163,17 @@ def tiles_from_region(region):
                 continue
             # This offset worked!
             break
+    
+    # Centre the map.
+    tile_xs = [t['coordinates']['x'] for t in the_map]
+    tile_ys = [t['coordinates']['y'] for t in the_map]
+    mean_xs = numpy.mean(tile_xs)
+    mean_ys = numpy.mean(tile_ys)
+    the_map = shift_tiles(the_map, -mean_xs, -mean_ys)
+    tile_xs = [t['coordinates']['x'] for t in the_map]
+    tile_ys = [t['coordinates']['y'] for t in the_map]
+    print(tile_xs)
+    print(tile_ys)
 
     return the_map
 
@@ -170,7 +187,7 @@ def tiles_from_sa1_region(region, random_state=numpy.random):
     normalisation = sum(region_zoning.values())
     for zone, proportion in region_zoning.items():
         # r, c, u, i, p, w
-        cell_value = round((proportion / normalisation) * grid_size ** 2)
+        cell_value = int(round((proportion / normalisation) * grid_size ** 2))
         zones.extend([zone] * cell_value)
     while len(zones) < grid_size ** 2:
         zones.append('U')

@@ -11,7 +11,12 @@ const svg = d3
   .attr("width", width + margin.left + margin.right)
   .attr("height", height + margin.top + margin.bottom)
   .append("g")
-  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+  .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+  .call(
+    d3.zoom().on("zoom", function() {
+      svg.attr("transform", d3.event.transform);
+    })
+  );
 
 const INITIAL_VIEWPORT = [[-34.1, -33.52], [150.6, 151.36]];
 
@@ -69,12 +74,16 @@ export function initialise() {
     fetchRegions().then(regions =>
       fetchSimilar(region).then(similar => {
         const getRegion = name => regions[name];
-        const getPoly = ([lat, lon]) => (d => {
-              const region = getRegion(d.region);
-              return region.geometry.map(([y, x]) => `${(width * (y - lon[0])) /
-                (lon[1] - lon[0])},${height -
-                  (height * (x - lat[0])) /
-                    (lat[1] - lat[0])}`).join(" ")});
+        const getPoly = ([lat, lon]) => d => {
+          const region = getRegion(d.region);
+          return region.geometry
+            .map(
+              ([y, x]) =>
+                `${(width * (y - lon[0])) / (lon[1] - lon[0])},${height -
+                  (height * (x - lat[0])) / (lat[1] - lat[0])}`
+            )
+            .join(" ");
+        };
         const vis = svg.selectAll(".dot").data(similar);
         if (!initialised) {
           initialised = true;
@@ -83,8 +92,6 @@ export function initialise() {
             .append("polygon")
             .attr("class", "dot")
             .attr("points", getPoly([latitude, longitude]))
-                .attr("stroke","black")
-                .attr("stroke-width",1)
             .style("fill", point => "black")
             .style("opacity", point => Math.max(1 - point.score, 0.1))
             .on("mouseover", function(d) {
@@ -104,42 +111,16 @@ export function initialise() {
                 .style("opacity", 0);
             })
             .on("click", async d => {
-              if (d3.event.shiftKey) {
-                if (zoom == false) {
-                  const zoom_lat = [
-                    getRegion(d.region).lat - 0.1,
-                    getRegion(d.region).lat + 0.1
-                  ];
-                  const zoom_lon = [
-                    getRegion(d.region).lon - 0.1,
-                    getRegion(d.region).lon + 0.1
-                  ];
-
-                  svg
-                    .selectAll(".dot")
-                    .transition()
-                    .attr("points", getPoly([zoom_lat, zoom_lon]))
-                    ;
-                } else {
-                  svg
-                    .selectAll(".dot")
-                    .transition()
-                      .attr("points", getPoly([zoom_lat, zoom_lon]));
-
+              const result = await fetch("/api/tiles", {
+                method: "POST",
+                body: JSON.stringify(getRegion(d.region)),
+                headers: {
+                  "Content-Type": "application/json"
                 }
-                zoom = !zoom;
-              } else {
-                const result = await fetch("/api/tiles", {
-                  method: "POST",
-                  body: JSON.stringify(getRegion(d.region)),
-                  headers: {
-                    "Content-Type": "application/json"
-                  }
-                });
+              });
 
-                const json = (await result.json()) as TileModel[];
-                region$.next({ model: getRegion(d.region), tiles: json });
-              }
+              const json = (await result.json()) as TileModel[];
+              region$.next({ model: getRegion(d.region), tiles: json });
             });
         } else {
           vis
