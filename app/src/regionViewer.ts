@@ -53,8 +53,25 @@ const mapDistanceToInternal = (distance: number) => {
   return (TileDiameter + TileGap) * distance;
 };
 
-const mapPopulationToDensity = (population: number) =>
-  population * BuildingHeight;
+const mapPopulationToDensity = (population: number, zoneType: Zone) => {
+  console.log(zoneType);
+  if (zoneType == Zone.Residential) {
+    return population * BuildingHeight;
+  } else if (zoneType == Zone.Commercial) {
+    let cutoff = 2;
+    if (population <= cutoff) {
+      return population;
+    } else {
+      return 2 + (population - 2) / 100
+    }
+    //   return population;
+    // } else {
+    //   return (population) + cutoff;
+    // }
+    return 1
+  }
+  return population;
+}
 
 function setRegion(region: RegionModel) {
   title.innerText = region.model.name;
@@ -64,7 +81,7 @@ function setRegion(region: RegionModel) {
     });
 
     if (tile.population) {
-      const height = mapPopulationToDensity(tile.population);
+      const height = mapPopulationToDensity(tile.population, tile.zone);
       const geometry = new BoxGeometry(
         TileDiameter - TilePadding * 2,
         height + 0.1,
