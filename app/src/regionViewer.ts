@@ -14,7 +14,9 @@ import "./main.scss";
 import { setLighting, setupCamera, setUpRenderer } from "./sceneSetup";
 import { Zone, ZoneColors } from "./ZoneTypes";
 import waterTextureImg from "./textures/waterTexture.jpg";
-const waterTexture = new TextureLoader().load(waterTextureImg)
+import grassTextureImg from "./textures/grasstex2.jpg";
+const waterTexture = new TextureLoader().load(waterTextureImg);
+const grassTexture = new TextureLoader().load(grassTextureImg);
 
 let active = [];
 let subscriptions = [];
@@ -46,7 +48,7 @@ const COMMERCIAL_COLOR = "#aaccee";
 // todo: density
 
 const TileDiameter = 3;
-const TileGap = 0;
+const TileGap = 1;
 const TilePadding = 0.4;
 const BuildingHeight = 1 / 30;
 
@@ -89,21 +91,53 @@ function setRegion(region: RegionModel) {
 
     if (tile.population) {
       const height = mapPopulationToDensity(tile.population, tile.zone);
-      const geometry = new BoxGeometry(
-        TileDiameter - TilePadding * 2,
-        height + 0.1,
-        TileDiameter - TilePadding * 2
-      );
-      const cube = new Mesh(geometry, material);
-      scene.add(cube);
-      active.push(cube);
-      cube.translateX(mapDistanceToInternal(tile.coordinates.x));
-      cube.translateZ(mapDistanceToInternal(tile.coordinates.y));
-      cube.translateY(height / 2);
+      let cube;
+      let geometry;
+      if (tile.zone == Zone.Commercial && height > 5) {
+        let heightCut = (0.5 + Math.random() / 2) * height;
+        geometry = new BoxGeometry(
+          TileDiameter - TilePadding * 2,
+          heightCut + 0.1,
+          TileDiameter - TilePadding * 2
+        );
+        cube = new Mesh(geometry, material);
+        let geometryC = new BoxGeometry(
+          TileDiameter - TilePadding * 4,
+          height - heightCut + 0.1,
+          TileDiameter - TilePadding * 4,
+        );
+        let cubeC = new Mesh(geometryC, material);
+        scene.add(cubeC);
+        active.push(cubeC);
+        cubeC.translateX(mapDistanceToInternal(tile.coordinates.x));
+        cubeC.translateZ(mapDistanceToInternal(tile.coordinates.y));
+        cubeC.translateY((height - heightCut) / 2 + heightCut);
+
+        scene.add(cube);
+        active.push(cube);
+        cube.translateX(mapDistanceToInternal(tile.coordinates.x));
+        cube.translateZ(mapDistanceToInternal(tile.coordinates.y));
+        cube.translateY(heightCut / 2);
+      } else {
+        const geometry = new BoxGeometry(
+          TileDiameter - TilePadding * 2,
+          height + 0.1,
+          TileDiameter - TilePadding * 2
+        );
+        cube = new Mesh(geometry, material);
+
+        scene.add(cube);
+        active.push(cube);
+        cube.translateX(mapDistanceToInternal(tile.coordinates.x));
+        cube.translateZ(mapDistanceToInternal(tile.coordinates.y));
+        cube.translateY(height / 2);
+      }
     }
     // Add the base for the tile
     const baseMeshMaterial = tile.zone === Zone.Water ? new MeshBasicMaterial({
       map: waterTexture,
+    }) : tile.zone === Zone.Park ? new MeshBasicMaterial({
+      map: grassTexture,
     }) : new MeshStandardMaterial({
       color: ZoneColors[tile.zone] || ZoneColors[Zone.Unknown],
     })
