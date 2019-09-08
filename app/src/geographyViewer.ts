@@ -2,6 +2,7 @@
  * Geographical data about your town :D
  */
 
+import numeral from "numeral";
 import { region$, RegionModel } from "./fetchTile";
 
 const updateTextNode = (element: HTMLElement, value: any) => {
@@ -28,9 +29,10 @@ const renderGeography = (region: RegionModel) => {
     geographyDiv.querySelector(".c-suburb-geography__religious"),
     numToPercent(region.model.religious)
   );
+  const medianRentRounded = numeral(region.model.median_rent).format("$0,0.00");
   updateTextNode(
     geographyDiv.querySelector(".c-suburb-geography__rent"),
-    `$${region.model.median_rent.toFixed(0)}`
+    `${medianRentRounded}`
   );
   updateTextNode(
     geographyDiv.querySelector(".c-suburb-geography__rent-rate"),
