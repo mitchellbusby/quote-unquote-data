@@ -136,7 +136,7 @@ function setRegion(region: RegionModel) {
     // Add the base for the tile
     const baseMeshMaterial = tile.zone === Zone.Water ? new MeshPhysicalMaterial({
       map: waterTexture,
-    }) : tile.zone === Zone.Park ? new MeshBasicMaterial({
+    }) : tile.zone === Zone.Park ? new MeshPhysicalMaterial({
       map: grassTexture,
     }) : new MeshStandardMaterial({
       color: ZoneColors[tile.zone] || ZoneColors[Zone.Unknown],
