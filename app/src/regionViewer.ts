@@ -54,7 +54,7 @@ function setRegion(region: RegionModel) {
   title.innerText = region.model.name;
   region.tiles.forEach((tile, idx) => {
     const material = new MeshStandardMaterial({
-      color: BUILDING_COLOR //ZoneColors[tile.zone] || ZoneColors[Zone.Unknown]
+      color: BUILDING_COLOR
     });
 
     if (tile.population) {
