@@ -2,13 +2,16 @@ import * as Rx from "rxjs";
 import { Zone } from "./ZoneTypes";
 
 const region$ = new Rx.ReplaySubject<RegionModel>(1);
+const loadingRegion$ = new Rx.ReplaySubject<boolean>(1);
 
 const fetchNewRegion = async () => {
+  loadingRegion$.next(true);
   const result = await fetch("/api/region");
 
   const json = (await result.json()) as RegionModel;
 
   region$.next(json);
+  loadingRegion$.next(false);
 };
 
 interface TileModel {
@@ -41,4 +44,4 @@ interface RegionModel {
   tiles: TileModel[];
 }
 
-export { region$, fetchNewRegion, RegionModel, TileModel, RegionModelModel };
+export { region$, fetchNewRegion, RegionModel, TileModel, RegionModelModel, loadingRegion$ };

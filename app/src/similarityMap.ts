@@ -1,5 +1,6 @@
 import * as d3 from "d3";
-import { region$, RegionModelModel, TileModel } from "./fetchTile";
+import { region$, TileModel } from "./fetchTile";
+import { regions$ } from "./fetchRegions";
 
 const margin = { top: 20, right: 20, bottom: 30, left: 40 },
   width = 300 - margin.left - margin.right,
@@ -34,18 +35,6 @@ interface WeightedRegion {
   score: number;
 }
 
-let regions;
-
-const fetchRegions = async () => {
-  if (regions) {
-    return regions;
-  }
-  const result = await fetch("/api/regions");
-  const json = (await result.json()) as { [key: string]: RegionModelModel };
-  regions = json;
-  return json;
-};
-
 const fetchSimilar = async region => {
   const result = await fetch("/api/similar", {
     method: "POST",
@@ -71,7 +60,7 @@ export function initialise() {
       "#similar-label"
     ).textContent = `Similar to ${region["model"]["name"]}`;
 
-    fetchRegions().then(regions =>
+    regions$.subscribe(regions =>
       fetchSimilar(region).then(similar => {
         const getRegion = name => regions[name];
         const getPoly = ([lat, lon]) => d => {

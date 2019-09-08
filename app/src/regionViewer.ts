@@ -6,8 +6,8 @@ import {
   MeshStandardMaterial,
   Scene,
   TextureLoader,
-  MeshBasicMaterial,
-  MeshPhongMaterial
+  MeshPhysicalMaterial,
+  MeshPhongMaterial,
 } from "three";
 import { region$, RegionModel } from "./fetchTile";
 import "./main.scss";
@@ -134,12 +134,13 @@ function setRegion(region: RegionModel) {
       }
     }
     // Add the base for the tile
-    const baseMeshMaterial = tile.zone === Zone.Water ? new MeshBasicMaterial({
+    const baseMeshMaterial = tile.zone === Zone.Water ? new MeshPhysicalMaterial({
       map: waterTexture,
     }) : tile.zone === Zone.Park ? new MeshBasicMaterial({
       map: grassTexture,
     }) : new MeshStandardMaterial({
       color: ZoneColors[tile.zone] || ZoneColors[Zone.Unknown],
+      roughness: 10000,
     })
     const base = new Mesh(
       new BoxGeometry(TileDiameter, 0.1, TileDiameter),
