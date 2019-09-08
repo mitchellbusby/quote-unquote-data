@@ -7,6 +7,7 @@ import {
   Scene,
   TextureLoader,
   MeshPhysicalMaterial,
+  MeshBasicMaterial,
   MeshPhongMaterial,
 } from "three";
 import { region$, RegionModel } from "./fetchTile";
@@ -14,8 +15,9 @@ import "./main.scss";
 import { setLighting, setupCamera, setUpRenderer } from "./sceneSetup";
 import { Zone, ZoneColors } from "./ZoneTypes";
 import waterTextureImg from "./textures/waterTexture.jpg";
+import { teardownSubscription } from "./teardownSubscription";
+const waterTexture = new TextureLoader().load(waterTextureImg)
 import grassTextureImg from "./textures/grasstex2.jpg";
-const waterTexture = new TextureLoader().load(waterTextureImg);
 const grassTexture = new TextureLoader().load(grassTextureImg);
 
 let active = [];
@@ -57,7 +59,6 @@ const mapDistanceToInternal = (distance: number) => {
 };
 
 const mapPopulationToDensity = (population: number, zoneType: Zone) => {
-  console.log(zoneType);
   if (zoneType == Zone.Residential) {
     return population * BuildingHeight;
   } else if (zoneType == Zone.Commercial) {
@@ -172,11 +173,13 @@ const destroy = () => {
 };
 
 const initialise = () => {
-  region$.subscribe(region => {
+  const regionSub = region$.subscribe(region => {
     destroy();
     setRegion(region);
     animate();
   });
+
+  teardownSubscription(regionSub, module);
 };
 
 export { initialise };

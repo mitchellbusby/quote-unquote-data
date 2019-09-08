@@ -102,8 +102,6 @@ def get_similar_regions(model):
     regions = get_regions()
     features, scaler = get_features(regions)
     this_features, _ = get_features([model], scaler)
-    print('Features shape is', features.shape)
-    print('One feature shape is', this_features.shape)
     distances = numpy.sqrt(numpy.sum((this_features - features) ** 2, axis=1))
     distances /= distances.max()
     series = pandas.Series(distances)
@@ -205,13 +203,10 @@ def tiles_from_sa1_region(region, random_state=numpy.random):
     # Just allocate employees as population.
     n_employees = numpy.sum(region['businesses'] * numpy.array([1, 3, 10, 100, 200]))
     n_commercial = numpy.sum(zones == 'C')
-    print('n_commercial:', n_commercial)
     business_pops = random_state.uniform(size=(n_commercial,))
     business_pops /= business_pops.sum()
     business_pops *= n_employees / n_commercial
     pop_grid[zones == 'C'] = business_pops
-    print('business pops', pop_grid[zones == 'C'], pop_grid[zones == 'C'].sum())
-    print('resident pops', pop_grid[zones == 'R'], pop_grid[zones == 'R'].sum())
     # # If we have five or less, we can make our histogram.
     # if n_commercial == 0:
     #     pass
