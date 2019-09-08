@@ -4,12 +4,16 @@ import {
   Fog,
   Mesh,
   MeshStandardMaterial,
-  Scene
+  Scene,
+  TextureLoader,
+  MeshBasicMaterial
 } from "three";
 import { region$, RegionModel } from "./fetchTile";
 import "./main.scss";
 import { setLighting, setupCamera, setUpRenderer } from "./sceneSetup";
 import { Zone, ZoneColors } from "./ZoneTypes";
+import waterTextureImg from "./textures/waterTexture.jpg";
+const waterTexture = new TextureLoader().load(waterTextureImg)
 
 let active = [];
 let subscriptions = [];
@@ -71,11 +75,15 @@ function setRegion(region: RegionModel) {
       cube.translateZ(mapDistanceToInternal(tile.coordinates.y));
       cube.translateY(height / 2);
     }
+    // Add the base for the tile
+    const baseMeshMaterial = tile.zone === Zone.Water ? new MeshBasicMaterial({
+      map: waterTexture,
+    }) : new MeshStandardMaterial({
+      color: ZoneColors[tile.zone] || ZoneColors[Zone.Unknown],
+    })
     const base = new Mesh(
       new BoxGeometry(TileDiameter, 0.1, TileDiameter),
-      new MeshStandardMaterial({
-        color: ZoneColors[tile.zone] || ZoneColors[Zone.Unknown]
-      })
+      baseMeshMaterial,
     );
     scene.add(base);
     active.push(base);
