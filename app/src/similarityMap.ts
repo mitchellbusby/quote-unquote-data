@@ -2,8 +2,8 @@ import * as d3 from "d3";
 import { region$, RegionModelModel, TileModel } from "./fetchTile";
 
 const margin = { top: 20, right: 20, bottom: 30, left: 40 },
-  width = 400 - margin.left - margin.right,
-  height = 400 - margin.top - margin.bottom;
+  width = 300 - margin.left - margin.right,
+  height = 300 - margin.top - margin.bottom;
 
 const svg = d3
   .select("#similar-map")

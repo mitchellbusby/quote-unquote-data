@@ -4,12 +4,16 @@ import {
   Fog,
   Mesh,
   MeshStandardMaterial,
-  Scene
+  Scene,
+  TextureLoader,
+  MeshBasicMaterial
 } from "three";
 import { region$, RegionModel } from "./fetchTile";
 import "./main.scss";
 import { setLighting, setupCamera, setUpRenderer } from "./sceneSetup";
-import { Zone } from "./ZoneTypes";
+import { Zone, ZoneColors } from "./ZoneTypes";
+import waterTextureImg from "./textures/waterTexture.jpg";
+const waterTexture = new TextureLoader().load(waterTextureImg)
 
 let active = [];
 let subscriptions = [];
@@ -34,16 +38,7 @@ setLighting(scene);
 
 scene.background = new Color("#87CEEB");
 scene.fog = new Fog(0xffffff, 0, 200);
-
-// todo: get sc4 color codes
-const ZoneColors = {
-  [Zone.Residential]: "#007f00",
-  [Zone.Commercial]: "#6666e6",
-  [Zone.Industrial]: "#ff0000",
-  [Zone.Water]: "#ddddff",
-  [Zone.Park]: "#66ee66",
-  [Zone.Unknown]: "#ffffff"
-};
+scene.scale.set(0.5, 0.5, 0.5);
 
 const BUILDING_COLOR = "#eeeeee";
 // todo: density
@@ -98,11 +93,15 @@ function setRegion(region: RegionModel) {
       cube.translateZ(mapDistanceToInternal(tile.coordinates.y));
       cube.translateY(height / 2);
     }
+    // Add the base for the tile
+    const baseMeshMaterial = tile.zone === Zone.Water ? new MeshBasicMaterial({
+      map: waterTexture,
+    }) : new MeshStandardMaterial({
+      color: ZoneColors[tile.zone] || ZoneColors[Zone.Unknown],
+    })
     const base = new Mesh(
       new BoxGeometry(TileDiameter, 0.1, TileDiameter),
-      new MeshStandardMaterial({
-        color: ZoneColors[tile.zone] || ZoneColors[Zone.Unknown]
-      })
+      baseMeshMaterial,
     );
     scene.add(base);
     active.push(base);

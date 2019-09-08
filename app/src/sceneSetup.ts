@@ -57,7 +57,7 @@ const setupCamera = (aspect: number, d: number, scene: any, renderer: any) => {
   controls.autoRotate = true;
   controls.autoRotateSpeed = 0.5;
 
-  camera.position.set(20, 20, 20);
+  camera.position.set(50, 50, 50);
   camera.lookAt(scene.position);
   controls.update();
 

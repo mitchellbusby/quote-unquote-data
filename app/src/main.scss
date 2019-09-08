@@ -33,6 +33,7 @@ body {
     .c-suburb-som {
         position: fixed;
         bottom: 0;
+        margin-bottom: 12px;
     }
 
     .c-suburb-som-map {
@@ -45,7 +46,7 @@ body {
 }
 
 .c-suburb-panel {
-    width: 400px;
+    width: 300px;
     right: 0;
     position: absolute;
     margin: 12px;
@@ -70,6 +71,8 @@ body {
 .key {
     position: fixed;
     left: 0;
+
+    margin: 12px;
 
     svg {
         position: relative;
