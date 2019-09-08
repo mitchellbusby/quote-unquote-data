@@ -28,8 +28,12 @@ let longitude = INITIAL_VIEWPORT[1];
 const tooltip = d3
   .select("#similar-map")
   .append("div")
-  .attr("class", "tooltip")
-  .style("opacity", 0);
+  .attr("class", "tooltip shadow-1")
+  .style("opacity", 0)
+  .style("position", "fixed")
+  .style("background", "white")
+  .style("border-radius", "2px")
+  .style("padding", "0px 2px");
 
 interface WeightedRegion {
   region: string;

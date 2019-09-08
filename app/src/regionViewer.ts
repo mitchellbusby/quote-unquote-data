@@ -18,7 +18,6 @@ const waterTexture = new TextureLoader().load(waterTextureImg);
 const grassTexture = new TextureLoader().load(grassTextureImg);
 
 let active = [];
-let subscriptions = [];
 
 const canvas = document.getElementById(
   "c-isometric-canvas"
@@ -160,8 +159,8 @@ function setRegion(region: RegionModel) {
 
 function animate() {
   controls.update();
-  renderer.render(scene, camera);
   let token = requestAnimationFrame(animate);
+  renderer.render(scene, camera);
   if (module.hot) {
     module.hot.dispose(() => {
       cancelAnimationFrame(token);
