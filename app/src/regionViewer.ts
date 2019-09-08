@@ -1,4 +1,11 @@
-import { BoxGeometry, Mesh, MeshStandardMaterial, Scene } from "three";
+import {
+  BoxGeometry,
+  Color,
+  Fog,
+  Mesh,
+  MeshStandardMaterial,
+  Scene
+} from "three";
 import { region$, RegionModel } from "./fetchTile";
 import "./main.scss";
 import { setLighting, setupCamera, setUpRenderer } from "./sceneSetup";
@@ -24,6 +31,9 @@ const { renderer } = setUpRenderer(canvas, context, canvasBoundingRect);
 const { camera, controls } = setupCamera(aspect, d, scene, renderer);
 
 setLighting(scene);
+
+scene.background = new Color("#87CEEB");
+scene.fog = new Fog("#ffffff", 0, 200);
 
 // todo: get sc4 color codes
 const ZoneColors = {
