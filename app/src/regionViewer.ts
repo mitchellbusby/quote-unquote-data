@@ -14,6 +14,7 @@ import "./main.scss";
 import { setLighting, setupCamera, setUpRenderer } from "./sceneSetup";
 import { Zone, ZoneColors } from "./ZoneTypes";
 import waterTextureImg from "./textures/waterTexture.jpg";
+import { teardownSubscription } from "./teardownSubscription";
 const waterTexture = new TextureLoader().load(waterTextureImg)
 
 let active = [];
@@ -138,11 +139,13 @@ const destroy = () => {
 };
 
 const initialise = () => {
-  region$.subscribe(region => {
+  const regionSub = region$.subscribe(region => {
     destroy();
     setRegion(region);
     animate();
   });
+
+  teardownSubscription(regionSub, module);
 };
 
 export { initialise };
