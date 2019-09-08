@@ -87,6 +87,7 @@ def get_features(models, scaler=None):
         features = [region[feature] for feature in feature_names]
         for zone_type in "RCIWP":
             features.append(region['zoning'].get(zone_type, 0))
+        features.extend(region['businesses'])
         rows_and_columns.append(numpy.nan_to_num(features))
 
     if not scaler:
@@ -172,8 +173,6 @@ def tiles_from_region(region, generated=False):
     the_map = shift_tiles(the_map, -mean_xs, -mean_ys)
     tile_xs = [t['coordinates']['x'] for t in the_map]
     tile_ys = [t['coordinates']['y'] for t in the_map]
-    print(tile_xs)
-    print(tile_ys)
 
     return the_map
 
@@ -201,6 +200,32 @@ def tiles_from_sa1_region(region, random_state=numpy.random):
     pop_grid[zones != 'R'] = 0
     pop_grid /= pop_grid.sum() or 1
     pop_grid *= region['population']
+    
+    # Allocate businesses to commercial areas.
+    # Just allocate employees as population.
+    n_employees = numpy.sum(region['businesses'] * numpy.array([1, 3, 10, 100, 200]))
+    n_commercial = numpy.sum(zones == 'C')
+    print('n_commercial:', n_commercial)
+    business_pops = random_state.uniform(size=(n_commercial,))
+    business_pops /= business_pops.sum()
+    business_pops *= n_employees / n_commercial
+    pop_grid[zones == 'C'] = business_pops
+    print('business pops', pop_grid[zones == 'C'], pop_grid[zones == 'C'].sum())
+    print('resident pops', pop_grid[zones == 'R'], pop_grid[zones == 'R'].sum())
+    # # If we have five or less, we can make our histogram.
+    # if n_commercial == 0:
+    #     pass
+    # elif n_commercial <= 5:
+    #     n_employees = region['businesses'] * numpy.array([1, 3, 6, 9, 12])
+    #     n_employees_ = n_employees[:n_commercial]
+    #     n_employees_[-1] += n_employees[n_commercial:].sum()
+    #     n_employees /= sum(n_employees) / pop_grid.max() / 2
+    #     pop_grid[zones == 'C'] = n_employees_
+    # elif n_commercial > 5:
+    #     normalisation = sum(region['businesses'] * numpy.array([1, 3, 6, 9, 12]))
+    #     for proportion in region['businesses'] * numpy.array([1, 3, 6, 9, 12]:
+    #         cell_value = 
+
 
     # Generate tiles in [0, 5] x [0, 5].
     tiles = []

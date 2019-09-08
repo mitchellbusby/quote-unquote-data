@@ -23,6 +23,8 @@ feature_names = [
 rows_and_columns = []
 for region in sa1s:
     features = [region[feature] for feature in feature_names]
+    assert len(region['businesses']) == 5
+    features.extend(region['businesses'])
     for zone_type in "RCIWP":
         features.append(region['zoning'].get(zone_type, 0))
     rows_and_columns.append(numpy.nan_to_num(features))
@@ -42,6 +44,8 @@ def sample_sa1():
     assert all(sample[0] >= 0)
     for zone_type, s in zip("RCIWP", sample[0, -5:]):
         sa1['zoning'][zone_type] = numpy.clip(s, 0, 10000)
+    sa1['businesses'] = list(sample[0, -5-5:-5])
+    assert len(sa1['businesses']) == 5, sa1['businesses']
     finance_pc = numpy.array([  1261.91,   1843.  , 100000.  ])
     sa1['income_level'] = int((sa1['income'] < finance_pc).argmax() + 1)
     return sa1
@@ -61,6 +65,8 @@ def sample_suburb(min_sa1s=1, max_sa1s=16):
     d['income_level'] = int(round(numpy.nanmean([c['income_level'] for c in sa1s])))
     d['population'] = int(numpy.nansum([c['population'] for c in sa1s]))
     d['zoning'] = {k: 0 for k in 'RCIPWU'}
+    d['businesses'] = list(numpy.mean([c['businesses']
+                                         for c in sa1s], axis=0))
     for c in sa1s:
         for z in d['zoning']:
             d['zoning'][z] += c['zoning'].get(z, 0) / len(sa1s)
