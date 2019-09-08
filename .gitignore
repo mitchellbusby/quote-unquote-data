@@ -11,6 +11,7 @@ shapesnsw
 NSW_LOCALITY_POLYGON_shp
 .vscode
 .ipynb_checkpoints
+__pycache__
 # A bunch of random files for I/O when data hacking
 processing/sa2_regions.json
 sa1_seven_to_six.json
