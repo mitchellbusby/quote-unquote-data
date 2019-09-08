@@ -4,7 +4,7 @@
 
 import numeral from "numeral";
 import { region$, RegionModel } from "./fetchTile";
-import { teardownSubscription } from "./teardownSubscription";
+import Reloadable from "./reloadable";
 
 const updateTextNode = (element: HTMLElement, value: any) => {
   element.innerText = value;
@@ -45,12 +45,9 @@ const renderGeography = (region: RegionModel) => {
   );
 };
 
-const initialise = () => {
-  let subscription = region$.subscribe(region => {
-    renderGeography(region);
-  });
-
-  teardownSubscription(subscription, module);
-};
-
-export { initialise };
+export default class GeographyViewer extends Reloadable {
+  init() {
+    this.subscribe(region$, renderGeography);
+    this.setReloadHook(module);
+  }
+}

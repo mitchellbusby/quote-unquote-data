@@ -3,21 +3,18 @@ import {
   Color,
   Fog,
   Mesh,
+  MeshPhysicalMaterial,
   MeshStandardMaterial,
   Scene,
-  TextureLoader,
-  MeshPhysicalMaterial,
-  MeshBasicMaterial,
-  MeshPhongMaterial,
+  TextureLoader
 } from "three";
 import { region$, RegionModel } from "./fetchTile";
 import "./main.scss";
 import { setLighting, setupCamera, setUpRenderer } from "./sceneSetup";
-import { Zone, ZoneColors } from "./ZoneTypes";
-import waterTextureImg from "./textures/waterTexture.jpg";
-import { teardownSubscription } from "./teardownSubscription";
-const waterTexture = new TextureLoader().load(waterTextureImg)
 import grassTextureImg from "./textures/grasstex2.jpg";
+import waterTextureImg from "./textures/waterTexture.jpg";
+import { Zone, ZoneColors } from "./ZoneTypes";
+const waterTexture = new TextureLoader().load(waterTextureImg);
 const grassTexture = new TextureLoader().load(grassTextureImg);
 
 let active = [];
@@ -51,7 +48,7 @@ const COMMERCIAL_COLOR = "#aaccee";
 
 const TileDiameter = 3;
 const TileGap = 1;
-const TilePadding = 0.4;
+const TilePadding = 0.75;
 const BuildingHeight = 1 / 30;
 
 const mapDistanceToInternal = (distance: number) => {
@@ -72,22 +69,24 @@ const mapPopulationToDensity = (population: number, zoneType: Zone) => {
     } else if (population <= cutoffC) {
       return cutoffA + cutoffB / 100 + (population - cutoffB) / 200;
     } else {
-      return cutoffA + cutoffB / 100 + cutoffC / 200 + (population - cutoffC) / 1000;
+      return (
+        cutoffA + cutoffB / 100 + cutoffC / 200 + (population - cutoffC) / 1000
+      );
     }
     //   return population;
     // } else {
     //   return (population) + cutoff;
     // }
-    return 1
+    return 1;
   }
   return population;
-}
+};
 
 function setRegion(region: RegionModel) {
   title.innerText = region.model.name;
   region.tiles.forEach((tile, idx) => {
     const material = new MeshStandardMaterial({
-      color: tile.zone == Zone.Commercial ? COMMERCIAL_COLOR : BUILDING_COLOR,
+      color: tile.zone == Zone.Commercial ? COMMERCIAL_COLOR : BUILDING_COLOR
     });
 
     if (tile.population) {
@@ -105,7 +104,7 @@ function setRegion(region: RegionModel) {
         let geometryC = new BoxGeometry(
           TileDiameter - TilePadding * 4,
           height - heightCut + 0.1,
-          TileDiameter - TilePadding * 4,
+          TileDiameter - TilePadding * 4
         );
         let cubeC = new Mesh(geometryC, material);
         scene.add(cubeC);
@@ -135,17 +134,22 @@ function setRegion(region: RegionModel) {
       }
     }
     // Add the base for the tile
-    const baseMeshMaterial = tile.zone === Zone.Water ? new MeshPhysicalMaterial({
-      map: waterTexture,
-    }) : tile.zone === Zone.Park ? new MeshPhysicalMaterial({
-      map: grassTexture,
-    }) : new MeshStandardMaterial({
-      color: ZoneColors[tile.zone] || ZoneColors[Zone.Unknown],
-      roughness: 10000,
-    })
+    const baseMeshMaterial =
+      tile.zone === Zone.Water
+        ? new MeshPhysicalMaterial({
+            map: waterTexture
+          })
+        : tile.zone === Zone.Park
+        ? new MeshPhysicalMaterial({
+            map: grassTexture
+          })
+        : new MeshStandardMaterial({
+            color: ZoneColors[tile.zone] || ZoneColors[Zone.Unknown],
+            roughness: 10000
+          });
     const base = new Mesh(
       new BoxGeometry(TileDiameter, 0.1, TileDiameter),
-      baseMeshMaterial,
+      baseMeshMaterial
     );
     scene.add(base);
     active.push(base);
@@ -179,7 +183,7 @@ const initialise = () => {
     animate();
   });
 
-  teardownSubscription(regionSub, module);
+  // teardownSubscription(regionSub, module);
 };
 
 export { initialise };

@@ -1,34 +1,37 @@
-import {loadingRegion$, region$} from './fetchTile';
-import { regions$, fetchSpecificTiles } from './fetchRegions';
-import { teardownSubscription } from './teardownSubscription';
+import { fetchSpecificTiles, regions$ } from "./fetchRegions";
+import { loadingRegion$, region$ } from "./fetchTile";
+import Reloadable from "./reloadable";
 
-const chooseRandomElement = arr => arr[Math.floor(Math.random() * arr.length)];
+export default class RandomiseButton extends Reloadable {
+  chooseRandomElement(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
 
-const initialise = () => {
+  public init() {
     const randomRealSuburbBtn = document.querySelector("#real-suburb-btn");
 
-    const regionsSubscription = regions$.subscribe((allRegions) => {
-        randomRealSuburbBtn.addEventListener("click", async () => {
-            // shuffle
-            const region = chooseRandomElement(Object.values(allRegions));
+    const regionsSubscription = regions$.subscribe(allRegions => {
+      randomRealSuburbBtn.addEventListener("click", async () => {
+        // shuffle
+        const region = this.chooseRandomElement(Object.values(allRegions));
 
-            // get tiles
-            const tiles = await fetchSpecificTiles(region);
-
-            // set the region
-            region$.next({ model: region, tiles });
-        });
+        // get tiles
+        const tiles = await fetchSpecificTiles(region);
+        //
+        // set the region
+        region$.next({ model: region, tiles });
+      });
     });
 
-    const loadingRegionSubscription = loadingRegion$.subscribe((loading) => {
-        document.querySelector("#randomise-btn")
-            .toggleAttribute('disabled', loading);
-        randomRealSuburbBtn.toggleAttribute('disabled', loading);
+    const loadingRegionSubscription = loadingRegion$.subscribe(loading => {
+      document
+        .querySelector("#randomise-btn")
+        .toggleAttribute("disabled", loading);
+      randomRealSuburbBtn.toggleAttribute("disabled", loading);
     });
 
-    teardownSubscription(regionsSubscription, module);
-    teardownSubscription(loadingRegionSubscription, module);
+    this.setReloadHook(module);
+    //teardownSubscription(regionsSubscription, module);
+    //teardownSubscription(loadingRegionSubscription, module);
+  }
 }
-
-export {initialise};
-

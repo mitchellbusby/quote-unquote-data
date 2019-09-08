@@ -1,3 +1,4 @@
+import Reloadable from "./reloadable";
 import { ZoneColors, ZoneLabels } from "./ZoneTypes";
 
 function shadeColor(color, percent) {
@@ -20,22 +21,31 @@ function shadeColor(color, percent) {
   return "#" + RR + GG + BB;
 }
 
-export const initialise = () => {
-  const parent = document.querySelector("#legend");
-  const template = document.querySelector("#legend-entry-template");
-  parent.innerHTML = template.outerHTML;
-  for (const zone in ZoneColors) {
-    template.querySelector("[data-target=label]").textContent =
-      ZoneLabels[zone];
-    (template.querySelector(
-      "[data-target=cube-top]"
-    ) as HTMLElement).style.fill = ZoneColors[zone];
-    (template.querySelector(
-      "[data-target=cube-left]"
-    ) as HTMLElement).style.fill = shadeColor(ZoneColors[zone], -15);
-    (template.querySelector(
-      "[data-target=cube-right]"
-    ) as HTMLElement).style.fill = shadeColor(ZoneColors[zone], -30);
-    parent.innerHTML += `<div class="key-entry">${template.innerHTML}</div>`;
+export default class Legend extends Reloadable {
+  init() {
+    const parent = document.querySelector("#legend");
+    const template = document.querySelector("#legend-entry-template");
+    parent.innerHTML = template.outerHTML;
+    for (const zone in ZoneColors) {
+      template.querySelector("[data-target=label]").textContent =
+        ZoneLabels[zone];
+      (template.querySelector(
+        "[data-target=cube-top]"
+      ) as HTMLElement).style.fill = ZoneColors[zone];
+      (template.querySelector(
+        "[data-target=cube-left]"
+      ) as HTMLElement).style.fill = shadeColor(ZoneColors[zone], -15);
+      (template.querySelector(
+        "[data-target=cube-right]"
+      ) as HTMLElement).style.fill = shadeColor(ZoneColors[zone], -30);
+      parent.innerHTML += `<div class="key-entry">${template.innerHTML}</div>`;
+      this.setReloadHook(module);
+    }
   }
-};
+  destroy() {
+    document.querySelector("#legend").innerHTML = document.querySelector(
+      "#legend-entry-template"
+    ).outerHTML;
+    super.destroy();
+  }
+}
