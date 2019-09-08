@@ -43,6 +43,10 @@ body {
 
 .c-suburb-geography {
     margin-bottom: 12px;
+    position: fixed;
+    bottom: 0;
+    left: 8px;
+    min-width: 200px;
 }
 
 .c-suburb-panel {
