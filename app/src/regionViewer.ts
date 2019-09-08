@@ -39,6 +39,7 @@ setLighting(scene);
 
 scene.background = new Color("#87CEEB");
 scene.fog = new Fog(0xffffff, 0, 200);
+scene.scale.set(0.5, 0.5, 0.5);
 
 const BUILDING_COLOR = "#eeeeee";
 // todo: density
