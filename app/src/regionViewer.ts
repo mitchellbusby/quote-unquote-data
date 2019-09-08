@@ -34,6 +34,7 @@ setLighting(scene);
 
 scene.background = new Color("#87CEEB");
 scene.fog = new Fog(0xffffff, 0, 200);
+scene.scale.set(0.5, 0.5, 0.5);
 
 const BUILDING_COLOR = "#eeeeee";
 // todo: density
@@ -81,7 +82,6 @@ function setRegion(region: RegionModel) {
     active.push(base);
     base.translateX(mapDistanceToInternal(tile.coordinates.x));
     base.translateZ(mapDistanceToInternal(tile.coordinates.y));
-    scene.scale.set(0.5, 0.5, 0.5);
   });
 }
 
