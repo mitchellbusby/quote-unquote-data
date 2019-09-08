@@ -22,13 +22,17 @@ app = Flask(
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 
 @lru_cache()
-def get_regions():        
+def get_regions():
     with open(os.path.dirname(os.path.realpath(__file__)) + '/data/suburb_regions.json') as regions_file:
         regions = json.load(regions_file)
     with open(os.path.dirname(os.path.realpath(__file__)) + '/data/suburb_boundaries.json') as bounds_file:
         boundaries = json.load(bounds_file)
     indexed_boundaries = {suburb['properties']['LC_PLY_PID']: suburb for suburb in boundaries['features']}
-    return [{**region, 'geometry': indexed_boundaries[region['id']]['geometry']['coordinates'][0]} for region in regions]
+    return [{
+        **region,
+        'geometry': indexed_boundaries[region['id']]['geometry']['coordinates'][0],
+        'areas': [area for area in generate.sa1s if area['sa2'] in region['sa1']]
+        } for region in regions]
 
 
 @lru_cache()
@@ -48,8 +52,8 @@ def index():
 
 @app.route('/api/region')
 def region_get():
-    sa1s, region = generate.sample_suburb()
-    tiles = tiles_from_region(sa1s, generated=True)
+    region = generate.sample_suburb()
+    tiles = tiles_from_region(region)
     return jsonify({
         'tiles': tiles,
         'model': region,
@@ -124,14 +128,10 @@ def geo_mean(iterable):
     a = numpy.array(iterable)
     return a.prod() ** (1.0 / len(a))
 
-def tiles_from_region(region, generated=False):
-    if not generated:
-        random_state = numpy.random.RandomState(seed=int(region['id']))
-        sa1_regions = get_sa2_regions()
-        sa1s = [sa1_regions[sa1] for sa1 in region['sa1']]
-    else:
-        random_state = numpy.random
-        sa1s = region
+def tiles_from_region(region):
+    random_state = numpy.random.RandomState(seed=int(region['id']))
+
+    sa1s = region['areas']
 
     sa1_tiles = [tiles_from_sa1_region(sa1, random_state=random_state) for sa1 in sa1s]
     # Put a SA1 in the middle of the map.
@@ -162,7 +162,7 @@ def tiles_from_region(region, generated=False):
                 continue
             # This offset worked!
             break
-    
+
     # Centre the map.
     tile_xs = [t['coordinates']['x'] for t in the_map]
     tile_ys = [t['coordinates']['y'] for t in the_map]
@@ -198,7 +198,7 @@ def tiles_from_sa1_region(region, random_state=numpy.random):
     pop_grid[zones != 'R'] = 0
     pop_grid /= pop_grid.sum() or 1
     pop_grid *= region['population']
-    
+
     # Allocate businesses to commercial areas.
     # Just allocate employees as population.
     n_employees = numpy.sum(region['businesses'] * numpy.array([1, 3, 10, 100, 200]))
@@ -219,7 +219,7 @@ def tiles_from_sa1_region(region, random_state=numpy.random):
     # elif n_commercial > 5:
     #     normalisation = sum(region['businesses'] * numpy.array([1, 3, 6, 9, 12]))
     #     for proportion in region['businesses'] * numpy.array([1, 3, 6, 9, 12]:
-    #         cell_value = 
+    #         cell_value =
 
 
     # Generate tiles in [0, 5] x [0, 5].

@@ -27,6 +27,21 @@ interface TileModel {
   };
 }
 
+interface Area {
+  income: number;
+  income_level: number;
+  lat: number;
+  lon: number;
+  median_rent: number;
+  name: string;
+  population: number;
+  religious: number;
+  rental_rate: number;
+  sa2: number;
+  unemployment: number;
+  zoning: { [key: string]: number };
+}
+
 interface RegionModelModel {
   name: string;
   lat: number;
@@ -37,6 +52,7 @@ interface RegionModelModel {
   unemployment: number;
   median_rent: number;
   geometry: number[][];
+  areas: Area[];
 }
 
 interface RegionModel {
@@ -44,4 +60,11 @@ interface RegionModel {
   tiles: TileModel[];
 }
 
-export { region$, fetchNewRegion, RegionModel, TileModel, RegionModelModel, loadingRegion$ };
+export {
+  region$,
+  fetchNewRegion,
+  RegionModel,
+  TileModel,
+  RegionModelModel,
+  loadingRegion$
+};

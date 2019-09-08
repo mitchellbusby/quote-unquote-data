@@ -72,4 +72,5 @@ def sample_suburb(min_sa1s=1, max_sa1s=16):
     for c in sa1s:
         for z in d['zoning']:
             d['zoning'][z] += c['zoning'].get(z, 0) / len(sa1s)
-    return sa1s, d
+    d['areas'] = sa1s
+    return d
