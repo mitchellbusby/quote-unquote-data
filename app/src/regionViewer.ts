@@ -33,7 +33,7 @@ const { camera, controls } = setupCamera(aspect, d, scene, renderer);
 setLighting(scene);
 
 scene.background = new Color("#87CEEB");
-scene.fog = new Fog("#ffffff", 0, 200);
+scene.fog = new Fog(0xffffff, 0, 200);
 
 // todo: get sc4 color codes
 const ZoneColors = {

@@ -2,8 +2,15 @@
 
 // Lets grab Tachyons
 @import "~tachyons";
+@import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
+
+body {
+    font-family: 'Roboto';
+}
 
 .c-main-canvas {
+    display: flex;
+
     #title {
         height: 32px;
         font-size: 32px;
@@ -12,26 +19,60 @@
         display: block;
         font-weight: bold;
         text-align: center;
+        z-index: 1;
     }
 
     .c-suburb-isometric {
-        border: 1px solid black;
-        height: 500px;
-        canvas {
-            width: 100%;
-            height: calc(100% - 32px);
-        }
+        flex-grow: 1;
     }
 
     .c-suburb-controls {
-        border: 1px solid black;
+        margin-bottom: 8px;
     }
 
     .c-suburb-som {
+        position: fixed;
+        bottom: 0;
+    }
+
+    .c-suburb-som-map {
         border: 1px solid black;
     }
 }
 
 .c-suburb-geography {
-    border: 1px solid black;
+    margin-bottom: 12px;
+}
+
+.c-suburb-panel {
+    width: 400px;
+    right: 0;
+    position: absolute;
+    margin: 12px;
+}
+
+#c-isometric-canvas {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+}
+
+
+.card{
+    background: white;
+    padding: 8px 12px;
+    border-radius: 3px;
+}
+
+.key {
+    position: fixed;
+    left: 0;
+
+    svg {
+        position: relative;
+        top: 4px;
+    }
 }

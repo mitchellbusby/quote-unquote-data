@@ -3,37 +3,84 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
     </head>
     <body>
-        <div class="c-main-canvas mw9 center flex ph3-ns mv3">
-            <div class="c-suburb-isometric w-100 w-50-ns pa2">
+        <div class="c-main-canvas">
+            <div class="c-suburb-isometric">
                 <!-- The isometric map for the suburb -->
                 <div><span id="title"></span></div>
                 <!-- todo: make responsive :S -->
                 <canvas id="c-isometric-canvas">
-                    
+
                 </canvas>
             </div>
-            <div class="w-100 w-50-ns pa2">
-                <div class="c-suburb-controls">
+            <div class="key">
+                <div class="key-entry">
+                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"  width="20" height="20" x="0px" y="0px" viewBox="0 0 58 58" style="enable-background:new 0 0 58 58;" xml:space="preserve">
+                    <g>
+                        <polygon style="fill:#434C6D;" points="29,58 3,45 3,13 29,26  "/>
+                        <polygon style="fill:#556080;" points="29,58 55,45 55,13 29,26  "/>
+                        <polygon style="fill:#7383BF;" points="3,13 28,0 55,13 29,26  "/>
+                    </g>
+                </svg>
+                Industrial
+            </div>
+            <div class="key-entry">
+                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"  width="20" height="20" x="0px" y="0px" viewBox="0 0 58 58" style="enable-background:new 0 0 58 58;" xml:space="preserve">
+                        <g>
+                            <polygon style="fill:#434C6D;" points="29,58 3,45 3,13 29,26  "/>
+                            <polygon style="fill:#556080;" points="29,58 55,45 55,13 29,26  "/>
+                            <polygon style="fill:#7383BF;" points="3,13 28,0 55,13 29,26  "/>
+                        </g>
+                    </svg>
+                    Industrial
+                </div>                <div class="key-entry">
+                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"  width="20" height="20" x="0px" y="0px" viewBox="0 0 58 58" style="enable-background:new 0 0 58 58;" xml:space="preserve">
+                            <g>
+                                <polygon style="fill:#434C6D;" points="29,58 3,45 3,13 29,26  "/>
+                                <polygon style="fill:#556080;" points="29,58 55,45 55,13 29,26  "/>
+                                <polygon style="fill:#7383BF;" points="3,13 28,0 55,13 29,26  "/>
+                            </g>
+                        </svg>
+                        Industrial
+                    </div>                <div class="key-entry">
+                            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"  width="20" height="20" x="0px" y="0px" viewBox="0 0 58 58" style="enable-background:new 0 0 58 58;" xml:space="preserve">
+                                <g>
+                                    <polygon style="fill:#434C6D;" points="29,58 3,45 3,13 29,26  "/>
+                                    <polygon style="fill:#556080;" points="29,58 55,45 55,13 29,26  "/>
+                                    <polygon style="fill:#7383BF;" points="3,13 28,0 55,13 29,26  "/>
+                                </g>
+                            </svg>
+                            Industrial
+                        </div>                <div class="key-entry">
+                                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"  width="20" height="20" x="0px" y="0px" viewBox="0 0 58 58" style="enable-background:new 0 0 58 58;" xml:space="preserve">
+                                    <g>
+                                        <polygon style="fill:#434C6D;" points="29,58 3,45 3,13 29,26  "/>
+                                        <polygon style="fill:#556080;" points="29,58 55,45 55,13 29,26  "/>
+                                        <polygon style="fill:#7383BF;" points="3,13 28,0 55,13 29,26  "/>
+                                    </g>
+                                </svg>
+                                Industrial
+                            </div>
+            </div>
+            <div class="c-suburb-panel">
+                <div class="c-suburb-geography pa3 card shadow-3">
+                    <div class="f3 lh-copy">Geography for <span class="c-suburb-geography__name"></span></div>
+                    <div>Population: <span class="c-suburb-geography__population"></span></div>
+                    <div>Religious: <span class="c-suburb-geography__religious"></span></div>
+                    <div>Median rent: <span class="c-suburb-geography__rent"></span></div>
+                    <div>Rental rate: <span class="c-suburb-geography__rent-rate"></span></div>
+                    <div>Unemployment: <span class="c-suburb-geography__unemployment"></span></div>
+                </div>
+                <div class="c-suburb-controls shadow-3 card">
                     <!-- Various toggles for the suburbs -->
-                    <div>Controls</div>
+                    <div class="f3 lh-copy">Controls</div>
                     <button id="randomise-btn">Randomise</button>
                 </div>
                 <div class="c-suburb-som">
                     <!-- The SOM for the suburbs -->
                     <div id="similar-label"></div>
-                    <div id="similar-map"></div>
+                    <div id="similar-map" class="c-suburb-som-map"></div>
                 </div>
             </div>
-        </div>
-        <div class="mw9 center ph3-ns mv3 flex">
-          <div class="w-100 c-suburb-geography pa3">
-            <div class="f3 lh-copy">Geography for <span class="c-suburb-geography__name"></span></div>
-            <div>Population: <span class="c-suburb-geography__population"></span></div>
-            <div>Religious: <span class="c-suburb-geography__religious"></span></div>
-            <div>Median rent: <span class="c-suburb-geography__rent"></span></div>
-            <div>Rental rate: <span class="c-suburb-geography__rent-rate"></span></div>
-            <div>Unemployment: <span class="c-suburb-geography__unemployment"></span></div>
-          </div>
         </div>
       </div>
     </div>
