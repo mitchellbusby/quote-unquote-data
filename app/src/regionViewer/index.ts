@@ -8,12 +8,13 @@ import {
   Scene,
   TextureLoader
 } from "three";
-import { region$, RegionModel } from "./fetchTile";
-import "./main.scss";
-import { setLighting, setupCamera, setUpRenderer } from "./sceneSetup";
+import { region$, RegionModel } from "../fetchTile";
+import Reloadable from "../reloadable";
+import { setLighting, setupCamera, setUpRenderer } from "../sceneSetup";
+import { Zone, ZoneColors } from "../ZoneTypes";
+import RegionMap from "./index";
 import grassTextureImg from "./textures/grasstex2.jpg";
 import waterTextureImg from "./textures/waterTexture.jpg";
-import { Zone, ZoneColors } from "./ZoneTypes";
 const waterTexture = new TextureLoader().load(waterTextureImg);
 const grassTexture = new TextureLoader().load(grassTextureImg);
 
@@ -23,7 +24,7 @@ const canvas = document.getElementById(
   "c-isometric-canvas"
 ) as HTMLCanvasElement;
 const title = document.getElementById("title");
-
+//
 const context = canvas.getContext("webgl2");
 
 const scene = new Scene();
@@ -175,14 +176,15 @@ const destroy = () => {
   active = [];
 };
 
-const initialise = () => {
-  const regionSub = region$.subscribe(region => {
-    destroy();
-    setRegion(region);
+class RegionMap extends Reloadable {
+  init() {
+    this.subscribe(region$, region => {
+      destroy();
+      setRegion(region);
+    });
     animate();
-  });
+    this.setReloadHook(module);
+  }
+}
 
-  // teardownSubscription(regionSub, module);
-};
-
-export { initialise };
+export { RegionMap };

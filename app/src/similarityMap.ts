@@ -1,4 +1,5 @@
 import * as d3 from "d3";
+import { combineLatest } from "rxjs";
 import { regions$ } from "./fetchRegions";
 import { region$, TileModel } from "./fetchTile";
 import Reloadable from "./reloadable";
@@ -60,80 +61,78 @@ export default class SimilarityMap extends Reloadable {
   init() {
     let initialised = false;
 
-    this.subscribe(region$, region => {
+    this.subscribe(combineLatest(region$, regions$), ([region, regions]) => {
       // add the graph canvas to the body of the webpage
       document.querySelector(
         "#similar-label"
       ).textContent = `Similar to ${region["model"]["name"]}`;
 
-      this.subscribe(regions$, regions =>
-        fetchSimilar(region).then(similar => {
-          const getRegion = name => regions[name];
-          const getPoly = ([lat, lon]) => d => {
-            const region = getRegion(d.region);
-            return region.geometry
-              .map(
-                ([y, x]) =>
-                  `${(width * (y - lon[0])) / (lon[1] - lon[0])},${height -
-                    (height * (x - lat[0])) / (lat[1] - lat[0])}`
-              )
-              .join(" ");
-          };
-          const vis = svg.selectAll(".dot").data(similar);
-          if (!initialised) {
-            initialised = true;
-            vis
-              .enter()
-              .append("polygon")
-              .attr("class", "dot")
-              .attr("points", getPoly([latitude, longitude]))
-              .style("fill", point => "black")
-              .style("opacity", point => Math.max(1 - point.score, 0.1))
-              .on("mouseover", function(d) {
-                tooltip
-                  .transition()
-                  .duration(200)
-                  .style("opacity", 0.9);
-                tooltip
-                  .text(getRegion(d.region).name)
-                  .style("left", d3.event.pageX + 5 + "px")
-                  .style("top", d3.event.pageY - 28 + "px");
-              })
-              .on("mouseout", function(d) {
-                tooltip
-                  .transition()
-                  .duration(500)
-                  .style("opacity", 0);
-              })
-              .on("click", async d => {
-                const result = await fetch("/api/tiles", {
-                  method: "POST",
-                  body: JSON.stringify(getRegion(d.region)),
-                  headers: {
-                    "Content-Type": "application/json"
-                  }
-                });
+      fetchSimilar(region).then(similar => {
+        const getRegion = name => regions[name];
+        const getPoly = ([lat, lon]) => d => {
+          const region = getRegion(d.region);
+          return region.geometry
+            .map(
+              ([y, x]) =>
+                `${(width * (y - lon[0])) / (lon[1] - lon[0])},${height -
+                  (height * (x - lat[0])) / (lat[1] - lat[0])}`
+            )
+            .join(" ");
+        };
+        const vis = svg.selectAll(".dot").data(similar);
+        if (!initialised) {
+          initialised = true;
+          vis
+            .enter()
+            .append("polygon")
+            .attr("class", "dot")
+            .attr("points", getPoly([latitude, longitude]))
+            .style("fill", point => "black")
+            .style("opacity", point => Math.max(1 - point.score, 0.1))
+            .on("mouseover", function(d) {
+              tooltip
+                .transition()
+                .duration(200)
+                .style("opacity", 0.9);
+              tooltip
+                .text(getRegion(d.region).name)
+                .style("left", d3.event.pageX + 5 + "px")
+                .style("top", d3.event.pageY - 28 + "px");
+            })
+            .on("mouseout", function(d) {
+              tooltip
+                .transition()
+                .duration(500)
+                .style("opacity", 0);
+            })
+            .on("click", async d => {
+              const result = await fetch("/api/tiles", {
+                method: "POST",
+                body: JSON.stringify(getRegion(d.region)),
+                headers: {
+                  "Content-Type": "application/json"
+                }
+              });
 
-                const json = (await result.json()) as TileModel[];
-                region$.next({ model: getRegion(d.region), tiles: json });
-              });
-          } else {
-            vis
-              .style("opacity", point => Math.max(1 - point.score, 0.1))
-              .attr("points", getPoly([latitude, longitude]))
-              .on("mouseover", function(d) {
-                tooltip
-                  .transition()
-                  .duration(200)
-                  .style("opacity", 0.9);
-                tooltip
-                  .text(getRegion(d.region).name)
-                  .style("left", d3.event.pageX + 5 + "px")
-                  .style("top", d3.event.pageY - 28 + "px");
-              });
-          }
-        })
-      );
+              const json = (await result.json()) as TileModel[];
+              region$.next({ model: getRegion(d.region), tiles: json });
+            });
+        } else {
+          vis
+            .style("opacity", point => Math.max(1 - point.score, 0.1))
+            .attr("points", getPoly([latitude, longitude]))
+            .on("mouseover", function(d) {
+              tooltip
+                .transition()
+                .duration(200)
+                .style("opacity", 0.9);
+              tooltip
+                .text(getRegion(d.region).name)
+                .style("left", d3.event.pageX + 5 + "px")
+                .style("top", d3.event.pageY - 28 + "px");
+            });
+        }
+      });
     });
     this.setReloadHook(module);
   }
