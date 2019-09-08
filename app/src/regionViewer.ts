@@ -9,7 +9,7 @@ import {
 import { region$, RegionModel } from "./fetchTile";
 import "./main.scss";
 import { setLighting, setupCamera, setUpRenderer } from "./sceneSetup";
-import { Zone } from "./ZoneTypes";
+import { Zone, ZoneColors } from "./ZoneTypes";
 
 let active = [];
 let subscriptions = [];
@@ -34,16 +34,6 @@ setLighting(scene);
 
 scene.background = new Color("#87CEEB");
 scene.fog = new Fog(0xffffff, 0, 200);
-
-// todo: get sc4 color codes
-const ZoneColors = {
-  [Zone.Residential]: "#007f00",
-  [Zone.Commercial]: "#6666e6",
-  [Zone.Industrial]: "#ff0000",
-  [Zone.Water]: "#ddddff",
-  [Zone.Park]: "#66ee66",
-  [Zone.Unknown]: "#ffffff"
-};
 
 const BUILDING_COLOR = "#eeeeee";
 // todo: density
