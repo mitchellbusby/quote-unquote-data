@@ -13,30 +13,35 @@
         <!-- todo: make responsive :S -->
         <canvas id="c-isometric-canvas"> </canvas>
       </div>
-      <div class="key" id="legend">
-        <div id="legend-entry-template" style="display: none">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            xmlns:xlink="http://www.w3.org/1999/xlink"
-            version="1.1"
-            width="20"
-            height="20"
-            x="0px"
-            y="0px"
-            viewBox="0 0 58 58"
-            style="enable-background:new 0 0 58 58;"
-            xml:space="preserve"
-          >
-            <g>
-              <polygon data-target="cube-left" points="29,33 3,20 3,13 29,26" />
-              <polygon
-              data-target="cube-right"
-                points="29,33 55,20 55,13 29,26"
-              />
-              <polygon data-target="cube-top" points="3,13 28,0 55,13 29,26  " />
-            </g>
-          </svg>
-          <span data-target="label"></span>
+      <div class="key-container ba pa2">
+        <div class="">
+          <div class="f4 lh-copy">Legend</div>
+        </div>
+        <div class="key" id="legend">
+          <div id="legend-entry-template" style="display: none">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              xmlns:xlink="http://www.w3.org/1999/xlink"
+              version="1.1"
+              width="20"
+              height="20"
+              x="0px"
+              y="0px"
+              viewBox="0 0 58 58"
+              style="enable-background:new 0 0 58 58;"
+              xml:space="preserve"
+            >
+              <g>
+                <polygon data-target="cube-left" points="29,33 3,20 3,13 29,26" />
+                <polygon
+                data-target="cube-right"
+                  points="29,33 55,20 55,13 29,26"
+                />
+                <polygon data-target="cube-top" points="3,13 28,0 55,13 29,26  " />
+              </g>
+            </svg>
+            <span data-target="label"></span>
+          </div>
         </div>
       </div>
       <div class="c-suburb-panel">
