@@ -3,4 +3,4 @@ numpy
 sklearn
 pandas
 minisom
-torch
+pytorch-cpu
