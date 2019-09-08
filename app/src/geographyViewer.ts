@@ -4,6 +4,7 @@
 
 import numeral from "numeral";
 import { region$, RegionModel } from "./fetchTile";
+import { teardownSubscription } from "./teardownSubscription";
 
 const updateTextNode = (element: HTMLElement, value: any) => {
   element.innerText = value;
@@ -45,9 +46,11 @@ const renderGeography = (region: RegionModel) => {
 };
 
 const initialise = () => {
-  region$.subscribe(region => {
+  let subscription = region$.subscribe(region => {
     renderGeography(region);
   });
+
+  teardownSubscription(subscription, module);
 };
 
 export { initialise };
