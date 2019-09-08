@@ -6,8 +6,8 @@ import {
   MeshStandardMaterial,
   Scene,
   TextureLoader,
-  MeshBasicMaterial,
-  MeshPhysicalMaterial
+  MeshPhysicalMaterial,
+  MeshPhongMaterial,
 } from "three";
 import { region$, RegionModel } from "./fetchTile";
 import "./main.scss";
@@ -42,6 +42,7 @@ scene.fog = new Fog(0xffffff, 0, 200);
 scene.scale.set(0.5, 0.5, 0.5);
 
 const BUILDING_COLOR = "#eeeeee";
+const COMMERCIAL_COLOR = "#aaccee";
 // todo: density
 
 const TileDiameter = 3;
@@ -58,11 +59,17 @@ const mapPopulationToDensity = (population: number, zoneType: Zone) => {
   if (zoneType == Zone.Residential) {
     return population * BuildingHeight;
   } else if (zoneType == Zone.Commercial) {
-    let cutoff = 2;
-    if (population <= cutoff) {
+    let cutoffA = 2;
+    let cutoffB = 10;
+    let cutoffC = 100;
+    if (population <= cutoffA) {
       return population;
+    } else if (population <= cutoffB) {
+      return cutoffA + (population - cutoffA) / 100;
+    } else if (population <= cutoffC) {
+      return cutoffA + cutoffB / 100 + (population - cutoffB) / 200;
     } else {
-      return 2 + (population - 2) / 100
+      return cutoffA + cutoffB / 100 + cutoffC / 200 + (population - cutoffC) / 1000;
     }
     //   return population;
     // } else {
@@ -77,7 +84,7 @@ function setRegion(region: RegionModel) {
   title.innerText = region.model.name;
   region.tiles.forEach((tile, idx) => {
     const material = new MeshStandardMaterial({
-      color: BUILDING_COLOR
+      color: tile.zone == Zone.Commercial ? COMMERCIAL_COLOR : BUILDING_COLOR,
     });
 
     if (tile.population) {
