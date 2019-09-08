@@ -57,7 +57,7 @@ def sample_suburb(min_sa1s=1, max_sa1s=16):
     # Aggregate SA1s into a suburb.
     d = dict(
         id=numpy.random.randint(50000, 1000000),
-        name='Random suburb',
+        name='Generated suburb',
     )
     meanable = 'religious', 'unemployment', 'rental_rate', 'median_rent', 'income'
     for m in meanable:
