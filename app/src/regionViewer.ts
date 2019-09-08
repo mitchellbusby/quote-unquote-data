@@ -81,6 +81,7 @@ function setRegion(region: RegionModel) {
     active.push(base);
     base.translateX(mapDistanceToInternal(tile.coordinates.x));
     base.translateZ(mapDistanceToInternal(tile.coordinates.y));
+    scene.scale.set(0.5, 0.5, 0.5);
   });
 }
 
