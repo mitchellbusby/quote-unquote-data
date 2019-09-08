@@ -13,7 +13,7 @@ const ZoneColors = {
   [Zone.Commercial]: "#6666e6",
   [Zone.Industrial]: "#ff0000",
   [Zone.Water]: "#ddddff",
-  [Zone.Park]: "#66ee66",
+  [Zone.Park]: "#bdd084",
   [Zone.Unknown]: "#ffffff"
 };
 
