@@ -59,7 +59,6 @@ const mapDistanceToInternal = (distance: number) => {
 };
 
 const mapPopulationToDensity = (population: number, zoneType: Zone) => {
-  console.log(zoneType);
   if (zoneType == Zone.Residential) {
     return population * BuildingHeight;
   } else if (zoneType == Zone.Commercial) {
