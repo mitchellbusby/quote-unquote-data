@@ -1,17 +1,21 @@
+import { combineLatest, fromEvent } from "rxjs";
 import { fetchSpecificTiles, regions$ } from "./fetchRegions";
-import { loadingRegion$, region$ } from "./fetchTile";
+import { fetchNewRegion, loadingRegion$, region$ } from "./fetchTile";
 import Reloadable from "./reloadable";
 
 export default class RandomiseButton extends Reloadable {
-  chooseRandomElement(arr) {
+  private chooseRandomElement<T>(arr: T[]) {
     return arr[Math.floor(Math.random() * arr.length)];
   }
 
   public init() {
     const randomRealSuburbBtn = document.querySelector("#real-suburb-btn");
+    const generateBtn = document.querySelector("#randomise-btn");
+    this.subscribe(fromEvent(generateBtn, "click"), fetchNewRegion);
 
-    const regionsSubscription = regions$.subscribe(allRegions => {
-      randomRealSuburbBtn.addEventListener("click", async () => {
+    this.subscribe(
+      combineLatest(regions$, fromEvent(randomRealSuburbBtn, "click")),
+      async ([allRegions, evt]) => {
         // shuffle
         const region = this.chooseRandomElement(Object.values(allRegions));
 
@@ -20,10 +24,10 @@ export default class RandomiseButton extends Reloadable {
         //
         // set the region
         region$.next({ model: region, tiles });
-      });
-    });
+      }
+    );
 
-    const loadingRegionSubscription = loadingRegion$.subscribe(loading => {
+    this.subscribe(loadingRegion$, loading => {
       document
         .querySelector("#randomise-btn")
         .toggleAttribute("disabled", loading);
@@ -31,7 +35,9 @@ export default class RandomiseButton extends Reloadable {
     });
 
     this.setReloadHook(module);
-    //teardownSubscription(regionsSubscription, module);
-    //teardownSubscription(loadingRegionSubscription, module);
+  }
+
+  destroy() {
+    super.destroy();
   }
 }

@@ -1,4 +1,4 @@
-import { initRegions } from "./fetchRegions";
+import { RegionListService } from "./fetchRegions";
 import { fetchNewRegion } from "./fetchTile";
 import GeographyViewer from "./geographyViewer";
 import Legend from "./legend";
@@ -8,11 +8,7 @@ import RandomiseButton from "./randomiseButton";
 import { RegionMap } from "./regionViewer";
 import SimilarityMap from "./similarityMap";
 
-document.querySelector("#randomise-btn").addEventListener("click", () => {
-  fetchNewRegion();
-});
 fetchNewRegion();
-initRegions();
 
 const services = [
   new ProjectionService(),
@@ -20,7 +16,8 @@ const services = [
   new Legend(),
   new GeographyViewer(),
   new SimilarityMap(),
-  new RegionMap()
+  new RegionMap(),
+  new RegionListService()
 ];
 
 services.forEach(service => {

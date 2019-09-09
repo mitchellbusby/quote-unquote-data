@@ -70,13 +70,17 @@ const mapPopulationToDensity = (population: number, zoneType: Zone) => {
         cutoffA + cutoffB / 100 + cutoffC / 200 + (population - cutoffC) / 1000
       );
     }
-    //   return population;
-    // } else {
-    //   return (population) + cutoff;
-    // }
-    return 1;
   }
   return population;
+};
+
+const Materials = {
+  water: new MeshPhysicalMaterial({
+    map: waterTexture
+  }),
+  grass: new MeshPhysicalMaterial({
+    map: grassTexture
+  })
 };
 
 function setRegion(region: RegionModel) {
@@ -130,13 +134,9 @@ function setRegion(region: RegionModel) {
     // Add the base for the tile
     const baseMeshMaterial =
       tile.zone === Zone.Water
-        ? new MeshPhysicalMaterial({
-            map: waterTexture
-          })
+        ? Materials.water
         : tile.zone === Zone.Park
-        ? new MeshPhysicalMaterial({
-            map: grassTexture
-          })
+        ? Materials.grass
         : new MeshStandardMaterial({
             color: ZoneColors[tile.zone] || ZoneColors[Zone.Unknown],
             roughness: 10000
@@ -163,18 +163,25 @@ function animate() {
 }
 
 const destroy = () => {
+  scene.traverse(parent =>
+    parent.children
+      .filter(obj => obj instanceof Mesh)
+      .forEach((obj: Mesh) => {
+        const disposables = [obj.material, obj.geometry];
+        disposables.forEach(disposable => {
+          if (disposable instanceof Array) {
+            disposable.forEach(obj => obj.dispose());
+          } else {
+            disposable.dispose();
+          }
+        });
+      })
+  );
+
   scene.children
     .filter(obj => obj instanceof Mesh)
     .forEach((obj: Mesh) => {
       scene.remove(obj);
-      const disposables = [obj.material, obj.geometry];
-      disposables.forEach(disposable => {
-        if (disposable instanceof Array) {
-          disposable.forEach(obj => obj.dispose());
-        } else {
-          disposable.dispose();
-        }
-      });
     });
 };
 
