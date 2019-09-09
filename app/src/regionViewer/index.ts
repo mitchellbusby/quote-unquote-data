@@ -10,15 +10,12 @@ import {
 } from "three";
 import { region$, RegionModel } from "../fetchTile";
 import Reloadable from "../reloadable";
-import { setLighting, setupCamera, setUpRenderer } from "./sceneSetup";
 import { Zone, ZoneColors } from "../ZoneTypes";
-import RegionMap from "./index";
+import { setLighting, setupCamera, setUpRenderer } from "./sceneSetup";
 import grassTextureImg from "./textures/grasstex2.jpg";
 import waterTextureImg from "./textures/waterTexture.jpg";
 const waterTexture = new TextureLoader().load(waterTextureImg);
 const grassTexture = new TextureLoader().load(grassTextureImg);
-
-let active = [];
 
 const canvas = document.getElementById(
   "c-isometric-canvas"
@@ -108,13 +105,11 @@ function setRegion(region: RegionModel) {
         );
         let cubeC = new Mesh(geometryC, material);
         scene.add(cubeC);
-        active.push(cubeC);
         cubeC.translateX(mapDistanceToInternal(tile.coordinates.x));
         cubeC.translateZ(mapDistanceToInternal(tile.coordinates.y));
         cubeC.translateY((height - heightCut) / 2 + heightCut);
 
         scene.add(cube);
-        active.push(cube);
         cube.translateX(mapDistanceToInternal(tile.coordinates.x));
         cube.translateZ(mapDistanceToInternal(tile.coordinates.y));
         cube.translateY(heightCut / 2);
@@ -127,7 +122,6 @@ function setRegion(region: RegionModel) {
         cube = new Mesh(geometry, material);
 
         scene.add(cube);
-        active.push(cube);
         cube.translateX(mapDistanceToInternal(tile.coordinates.x));
         cube.translateZ(mapDistanceToInternal(tile.coordinates.y));
         cube.translateY(height / 2);
@@ -152,7 +146,6 @@ function setRegion(region: RegionModel) {
       baseMeshMaterial
     );
     scene.add(base);
-    active.push(base);
     base.translateX(mapDistanceToInternal(tile.coordinates.x));
     base.translateZ(mapDistanceToInternal(tile.coordinates.y));
   });
@@ -170,10 +163,19 @@ function animate() {
 }
 
 const destroy = () => {
-  active.forEach(obj => {
-    scene.remove(obj);
-  });
-  active = [];
+  scene.children
+    .filter(obj => obj instanceof Mesh)
+    .forEach((obj: Mesh) => {
+      scene.remove(obj);
+      const disposables = [obj.material, obj.geometry];
+      disposables.forEach(disposable => {
+        if (disposable instanceof Array) {
+          disposable.forEach(obj => obj.dispose());
+        } else {
+          disposable.dispose();
+        }
+      });
+    });
 };
 
 class RegionMap extends Reloadable {
