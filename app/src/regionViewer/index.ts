@@ -10,7 +10,7 @@ import {
 } from "three";
 import { region$, RegionModel } from "../fetchTile";
 import Reloadable from "../reloadable";
-import { setLighting, setupCamera, setUpRenderer } from "../sceneSetup";
+import { setLighting, setupCamera, setUpRenderer } from "./sceneSetup";
 import { Zone, ZoneColors } from "../ZoneTypes";
 import RegionMap from "./index";
 import grassTextureImg from "./textures/grasstex2.jpg";
