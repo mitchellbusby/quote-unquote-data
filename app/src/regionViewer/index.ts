@@ -11,27 +11,19 @@ import {
 import { region$, RegionModel } from "../fetchTile";
 import Reloadable from "../reloadable";
 import { Zone, ZoneColors } from "../ZoneTypes";
-import { setLighting, setupCamera, setUpRenderer } from "./sceneSetup";
+import { setLighting, setUpRenderer } from "./sceneSetup";
 import grassTextureImg from "./textures/grasstex2.jpg";
 import waterTextureImg from "./textures/waterTexture.jpg";
 const waterTexture = new TextureLoader().load(waterTextureImg);
 const grassTexture = new TextureLoader().load(grassTextureImg);
 
-const canvas = document.getElementById(
-  "c-isometric-canvas"
-) as HTMLCanvasElement;
 const title = document.getElementById("title");
-//
-const context = canvas.getContext("webgl2");
 
 const scene = new Scene();
-const canvasBoundingRect = canvas.getBoundingClientRect();
-const aspect = canvasBoundingRect.width / canvasBoundingRect.height;
 
 const d = 20;
 
-const { renderer } = setUpRenderer(canvas, context, canvasBoundingRect);
-const { camera, controls } = setupCamera(aspect, d, scene, renderer);
+const { renderer, camera, controls } = setUpRenderer(scene);
 
 setLighting(scene);
 

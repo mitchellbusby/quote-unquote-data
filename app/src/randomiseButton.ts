@@ -9,6 +9,11 @@ export default class RandomiseButton extends Reloadable {
   }
 
   public init() {
+    const container = document.querySelector(".c-suburb-controls");
+    this.subscribe(fromEvent(container, "click"), () =>
+      container.classList.toggle("expanded")
+    );
+
     const randomRealSuburbBtn = document.querySelector("#real-suburb-btn");
     const generateBtn = document.querySelector("#randomise-btn");
     this.subscribe(fromEvent(generateBtn, "click"), fetchNewRegion);

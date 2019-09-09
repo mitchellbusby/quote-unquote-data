@@ -1,3 +1,4 @@
+import { fromEvent } from "rxjs";
 import Reloadable from "./reloadable";
 import { ZoneColors, ZoneLabels } from "./ZoneTypes";
 
@@ -23,6 +24,11 @@ function shadeColor(color, percent) {
 
 export default class Legend extends Reloadable {
   init() {
+    const container = document.querySelector(".key-container");
+    this.subscribe(fromEvent(container, "click"), () =>
+      container.classList.toggle("expanded")
+    );
+
     const parent = document.querySelector("#legend");
     const template = document.querySelector("#legend-entry-template");
     parent.innerHTML = template.outerHTML;

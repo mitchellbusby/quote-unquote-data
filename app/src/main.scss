@@ -2,84 +2,154 @@
 
 // Lets grab Tachyons
 @import "~tachyons";
-@import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
+@import url("https://fonts.googleapis.com/css?family=Roboto&display=swap");
 
 body {
-    font-family: 'Roboto';
+  font-family: "Roboto";
 }
 
 .c-main-canvas {
-    display: flex;
+  display: flex;
 
-    #title {
-        height: 32px;
-        font-size: 32px;
-        line-height: 32px;
-        width: 100%;
-        display: block;
-        font-weight: bold;
-        text-align: center;
-        z-index: 1;
-    }
+  #title {
+    height: 32px;
+    font-size: 32px;
+    line-height: 32px;
+    width: 100%;
+    display: block;
+    font-weight: bold;
+    text-align: center;
+    z-index: 1;
+  }
 
-    .c-suburb-isometric {
-        flex-grow: 1;
-    }
+  .c-suburb-isometric {
+    flex-grow: 1;
+  }
 
-    .c-suburb-controls {
-        margin-bottom: 8px;
-    }
+  .c-suburb-controls {
+    margin-bottom: 8px;
+  }
 
-    .c-suburb-som {
-        position: fixed;
-        bottom: 0;
-        margin-bottom: 12px;
-    }
+  .c-suburb-som {
+    margin-bottom: 12px;
+    margin-right: 12px;
+    margin-left: auto;
+    width: 300px;
+    transition: width 0.1s;
+    pointer-events: initial;
 
-    .c-suburb-som-map {
-        border: 1px solid black;
+    @media screen and (max-width: 750px) {
+      &:not(.expanded) {
+        width: 64px;
+
+        #similar-label {
+          display: none;
+        }
+        .c-suburb-som-map {
+          height: 64px;
+        }
+      }
     }
+  }
+
+  .c-suburb-som-map {
+    border: 1px solid black;
+    height: 300px;
+    box-sizing: content-box;
+    transition: height 0.1s;
+    overflow: hidden;
+  }
 }
 
 .c-suburb-geography {
-    margin-bottom: 12px;
+  margin-bottom: 12px;
+  margin-left: 8px;
+  margin-right: 8px;
+  pointer-events: initial;
+
+  @media screen and (min-width: 750px) {
     position: fixed;
     bottom: 0;
-    left: 8px;
-    min-width: 200px;
+    left: 0px;
+    min-width: 250px;
+    max-width: 400px;
+  }
 }
 
 .c-suburb-panel {
-    width: 300px;
-    right: 0;
-    position: absolute;
-    margin: 12px;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  position: fixed;
+  pointer-events: none;
 }
 
 #c-isometric-canvas {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 0;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
 }
 
-
-.card{
-    background: white;
-    padding: 8px 12px;
-    border-radius: 3px;
+.card {
+  background: white;
+  padding: 8px;
+  border-radius: 3px;
 }
 
 .key-container {
-    position: fixed;
-    left: 0;
+  position: fixed;
+  left: 0;
 
-    margin: 12px;
+  margin: 12px;
+  padding: 8px;
+  width: 140px;
+  height: 190px;
+  white-space: nowrap;
+  overflow: hidden;
 
-    svg {
-        position: relative;
-        top: 8px;
+  transition: width 0.5s, height 0.5s;
+
+  @media screen and (max-width: 600px) {
+    &:not(.expanded) {
+      width: 36px;
+      height: 40px;
     }
+  }
+
+  .legend-entry-icon {
+    position: relative;
+    top: 8px;
+  }
+}
+.title-icon {
+  margin-right: 8px;
+}
+
+.c-suburb-controls {
+  .title {
+    margin-bottom: 4px;
+  }
+
+  .title-icon {
+    margin-right: 10px;
+  }
+  margin: 12px;
+  z-index: 1;
+
+  width: 250px;
+  height: 110px;
+  white-space: nowrap;
+  overflow: hidden;
+
+  transition: width 0.5s, height 0.5s;
+
+  @media screen and (max-width: 600px) {
+    &:not(.expanded) {
+      width: 36px;
+      height: 40px;
+    }
+  }
 }
