@@ -15,7 +15,7 @@
     "rxjs": "^6.5.3",
     "sass": "^1.23.0-module.beta.1",
     "tachyons": "4.10.0",
-    "three": "^0.108.0"
+    "three": "^0.125.0"
   },
   "scripts": {
     "start": "yarn install && yarn run build",
